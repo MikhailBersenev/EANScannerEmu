@@ -3,12 +3,14 @@
 #include "generatedialog.h"
 #include "cutils.h"
 #include <QMessageBox>
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setWindowIcon(QIcon(":/icon.ico"));
 }
 
 MainWindow::~MainWindow()
@@ -44,5 +46,17 @@ void MainWindow::on_GenerateButton_clicked()
     for(int i = 0; i < aGeneratedItems.size(); i++) {
         ui->BarcodesMemo->append(aGeneratedItems.at(i));
     }
+}
+
+
+void MainWindow::on_AboutButton_clicked()
+{
+    QMessageBox::information(this, "About", "EAN Code Scanner Generator\n Version " + CUtils::GetVersion());
+}
+
+
+void MainWindow::on_GitHubButton_clicked()
+{
+    QDesktopServices::openUrl(QUrl::fromUserInput("https://github.com/MikhailBersenev/EANScannerEmu"));
 }
 

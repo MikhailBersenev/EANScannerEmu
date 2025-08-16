@@ -30,6 +30,12 @@ QStringList CUtils::GenerateEAN13(const int &rQnt)
     return AResult;
 }
 
+QString CUtils::GetVersion()
+{
+    const QString sVersion = "1.0";
+    return sVersion;
+}
+
 int CUtils::EanChecksum(const QString &rStr)
 {
     int nLen = rStr.length();

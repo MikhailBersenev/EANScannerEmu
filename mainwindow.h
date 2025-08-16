@@ -22,6 +22,10 @@ private slots:
 
     void on_GenerateButton_clicked();
 
+    void on_AboutButton_clicked();
+
+    void on_GitHubButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
