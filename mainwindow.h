@@ -26,7 +26,10 @@ private slots:
 
     void on_GitHubButton_clicked();
 
+    void on_ReadButton_clicked();
+
 private:
     Ui::MainWindow *ui;
+    QStringList aBarcodes;
 };
 #endif // MAINWINDOW_H

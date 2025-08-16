@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowIcon(QIcon(":/icon.ico"));
+    qDebug() << "EANScannerEmu ver." << CUtils::GetVersion();
 }
 
 MainWindow::~MainWindow()
@@ -21,6 +22,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_CleanButton_clicked()
 {
     ui->BarcodesMemo->clear();
+    aBarcodes.clear();
 
 }
 
@@ -58,5 +60,18 @@ void MainWindow::on_AboutButton_clicked()
 void MainWindow::on_GitHubButton_clicked()
 {
     QDesktopServices::openUrl(QUrl::fromUserInput("https://github.com/MikhailBersenev/EANScannerEmu"));
+}
+
+
+void MainWindow::on_ReadButton_clicked()
+{
+    QString strText = ui->BarcodesMemo->toPlainText();
+    if(strText.isEmpty()) {
+        QMessageBox::critical(this, "Error", "Barcode field is empty");
+        return;
+    }
+    aBarcodes = strText.split('\n', Qt::SkipEmptyParts);
+    QMessageBox::information(this, "EANScannerEmu", "Barcodes were successfuly loaded");
+
 }
 
