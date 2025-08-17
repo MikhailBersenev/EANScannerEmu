@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     cstringsender.cpp \
     cstringsenderlinuxwayland.cpp \
+    cstringsenderwin32.cpp \
     cutils.cpp \
     generatedialog.cpp \
     main.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
 HEADERS += \
     cstringsender.h \
     cstringsenderlinuxwayland.h \
+    cstringsenderwin32.h \
     cutils.h \
     generatedialog.h \
     mainwindow.h

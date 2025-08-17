@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 #include "cstringsender.h"
 #include "cstringsenderlinuxwayland.h"
+#include "cstringsenderwin32.h"
 #include <QMainWindow>
 #include <QTimer>
 

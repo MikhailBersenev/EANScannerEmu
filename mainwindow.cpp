@@ -6,7 +6,7 @@
 #include <QDesktopServices>
 #include <QTimer>
 #include <QDebug>
-
+#include <QThread>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -22,11 +22,13 @@ MainWindow::MainWindow(QWidget *parent)
     QString sDisplayServer = QGuiApplication::platformName();
     if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
         qDebug() << "Display Server Wayland";
-        m_pStringSender = new CStringSenderLinuxWayland();
+        m_pStringSender = new CStringSenderLinuxWayland(this);
     }
-
-#else
 #endif
+#ifdef Q_OS_WIN
+    m_pStringSender = new CStringSenderWin32(this);
+#endif
+
 
 
 }
@@ -113,8 +115,14 @@ void MainWindow::on_SendAllButton_clicked()
     
     connect(m_pSendTimer, &QTimer::timeout, this, &MainWindow::sendNextBarcode);
     
-    // Start with first barcode
-    SendBarcodeByIterator(m_nCurrentBarcodeIndex);
+    // Start with first barcode - send immediately and start timer for next
+    if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
+        m_nCurrentBarcodeIndex++;
+        // Start timer for next barcode
+        if(m_pSendTimer) {
+            m_pSendTimer->start();
+        }
+    }
 }
 
 bool MainWindow::SendBarcodeByIterator(int nIt)
@@ -155,14 +163,16 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
     if(m_pSendTimer) {
         int timeoutSeconds = ui->TimeoutSlider->value();
         qDebug() << "Scheduling next barcode in" << timeoutSeconds << "seconds";
-        
+#if 0
         // Show progress message
         QMessageBox::information(this, "Progress", 
             QString("Barcode %1 of %2 sent! You have %3 seconds to switch windows.\n"
                    "Next barcode will be sent automatically.").arg(nIt + 1).arg(m_aBarcodes.size()).arg(timeoutSeconds));
-        
-        // Start timer for next barcode
-        m_pSendTimer->start();
+#endif
+        // Start timer for next barcode (only if not the last one)
+        if(nIt < m_aBarcodes.size() - 1) {
+            m_pSendTimer->start();
+        }
     }
     
     return true;
@@ -171,10 +181,13 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
 void MainWindow::sendNextBarcode()
 {
     if(m_nCurrentBarcodeIndex < m_aBarcodes.size()) {
-        qDebug() << "Sending barcode" << m_nCurrentBarcodeIndex << "of" << m_aBarcodes.size();
-        
+        qDebug() << "Sending barcode" << m_nCurrentBarcodeIndex + 1 << "of" << m_aBarcodes.size();
         if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
             m_nCurrentBarcodeIndex++;
+            // Start timer for next barcode if there are more
+            if(m_nCurrentBarcodeIndex < m_aBarcodes.size() && m_pSendTimer) {
+                m_pSendTimer->start();
+            }
         } else {
             qDebug() << "Failed to send barcode at index" << m_nCurrentBarcodeIndex;
             QMessageBox::warning(this, "Error", "Failed to send barcode at index " + QString::number(m_nCurrentBarcodeIndex));
@@ -203,7 +216,7 @@ void MainWindow::on_SendNextButton_clicked()
         m_nCurrentBarcodeIndex = 0;
         qDebug() << "Resetting to first barcode";
     }
-    
+    QThread::sleep(ui->TimeoutSlider->value());
     // Send current barcode
     if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
         m_nCurrentBarcodeIndex++;
@@ -241,7 +254,7 @@ void MainWindow::on_SendPreviousButton_clicked()
         m_nCurrentBarcodeIndex = m_aBarcodes.size() - 1;
         qDebug() << "Wrapped around to last barcode";
     }
-    
+    QThread::sleep(ui->TimeoutSlider->value());
     // Send the previous barcode
     if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
         // Show progress
