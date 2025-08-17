@@ -9,12 +9,16 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    cstringsender.cpp \
+    cstringsenderlinuxwayland.cpp \
     cutils.cpp \
     generatedialog.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    cstringsender.h \
+    cstringsenderlinuxwayland.h \
     cutils.h \
     generatedialog.h \
     mainwindow.h

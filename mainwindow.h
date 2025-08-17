@@ -1,7 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include "cstringsenderlinuxwayland.h"
 #include <QMainWindow>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,5 +32,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QStringList aBarcodes;
+    CStringSender* m_pStringSender;
 };
 #endif // MAINWINDOW_H

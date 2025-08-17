@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "generatedialog.h"
 #include "cutils.h"
+
 #include <QMessageBox>
 #include <QDesktopServices>
 
@@ -12,10 +13,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowIcon(QIcon(":/icon.ico"));
     qDebug() << "EANScannerEmu ver." << CUtils::GetVersion();
+    m_pStringSender = nullptr;
+#ifdef Q_OS_LINUX
+    QString sDisplayServer = QGuiApplication::platformName();
+    if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
+        m_pStringSender = new CStringSenderLinuxWayland();
+    }
+
+#else
+#endif
+
 }
 
 MainWindow::~MainWindow()
 {
+    if(m_pStringSender)
+        delete m_pStringSender;
     delete ui;
 }
 
