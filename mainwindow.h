@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "cstringsender.h"
 #include "cstringsenderlinuxwayland.h"
 #include <QMainWindow>
+#include <QTimer>
 
 
 QT_BEGIN_NAMESPACE
@@ -29,9 +31,23 @@ private slots:
 
     void on_ReadButton_clicked();
 
+    void on_SendAllButton_clicked();
+    
+    void sendNextBarcode();
+
+    void on_SendNextButton_clicked();
+    
+    void on_SendPreviousButton_clicked();
+
 private:
     Ui::MainWindow *ui;
-    QStringList aBarcodes;
+    QStringList m_aBarcodes;
+    unsigned int m_nIterator;
     CStringSender* m_pStringSender;
+    bool SendBarcodeByIterator(int nIt);
+    
+    // Timer-related members
+    QTimer* m_pSendTimer;
+    int m_nCurrentBarcodeIndex;
 };
 #endif // MAINWINDOW_H

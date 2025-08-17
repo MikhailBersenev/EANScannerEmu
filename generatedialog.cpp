@@ -7,18 +7,18 @@ GenerateDialog::GenerateDialog(QWidget *parent)
     , ui(new Ui::GenerateDialog)
 {
     ui->setupUi(this);
-    nQnt = 0;
-    nType = NOTHING;
+    m_nQnt = 0;
+    m_nType = NOTHING;
 }
 
 int GenerateDialog::GetQuantity()
 {
-    return nQnt;
+    return m_nQnt;
 }
 
 GenerateDialog::Type GenerateDialog::GetType()
 {
-    return nType;
+    return m_nType;
 }
 
 GenerateDialog::~GenerateDialog()
@@ -32,8 +32,8 @@ void GenerateDialog::on_buttonBox_accepted()
     GenerateDialog::Type nType = static_cast<GenerateDialog::Type>(ui->comboBox->currentIndex() + 1); //add 1 because Type = 0 is NOTHING
     if(nQnt > 0)
     {
-        this->nQnt = nQnt;
-        this->nType = nType;
+        m_nQnt = nQnt;
+        m_nType = nType;
         close();
     }
     else {

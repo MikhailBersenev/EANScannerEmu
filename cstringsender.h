@@ -8,7 +8,7 @@ class CStringSender : public QObject
     Q_OBJECT
 public:
     explicit CStringSender(QObject *parent = nullptr);
-    virtual  bool SendString(QString& sString) const = 0;
+    virtual  bool SendString(QString* pString) const = 0;
     virtual  bool SendReturn() const = 0;
 
 signals:

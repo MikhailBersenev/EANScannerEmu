@@ -28,9 +28,9 @@ private slots:
 
 private:
     Ui::GenerateDialog *ui;
-    int nQnt;
+    int m_nQnt;
 
-    Type nType; // 0 - Nothing 1 - EAN8 2 - EAN13
+    Type m_nType; // 0 - Nothing 1 - EAN8 2 - EAN13
 };
 
 #endif // GENERATEDIALOG_H

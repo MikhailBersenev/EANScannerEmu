@@ -2,26 +2,32 @@
 #include "ui_mainwindow.h"
 #include "generatedialog.h"
 #include "cutils.h"
-
 #include <QMessageBox>
 #include <QDesktopServices>
+#include <QTimer>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->TimeoutSlider->setSliderPosition(30);
     setWindowIcon(QIcon(":/icon.ico"));
     qDebug() << "EANScannerEmu ver." << CUtils::GetVersion();
     m_pStringSender = nullptr;
+    m_pSendTimer = nullptr;
+    m_nCurrentBarcodeIndex = 0;
 #ifdef Q_OS_LINUX
     QString sDisplayServer = QGuiApplication::platformName();
     if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
+        qDebug() << "Display Server Wayland";
         m_pStringSender = new CStringSenderLinuxWayland();
     }
 
 #else
 #endif
+
 
 }
 
@@ -35,7 +41,8 @@ MainWindow::~MainWindow()
 void MainWindow::on_CleanButton_clicked()
 {
     ui->BarcodesMemo->clear();
-    aBarcodes.clear();
+    m_aBarcodes.clear();
+    m_nCurrentBarcodeIndex = 0; // Reset index when clearing
 
 }
 
@@ -83,8 +90,168 @@ void MainWindow::on_ReadButton_clicked()
         QMessageBox::critical(this, "Error", "Barcode field is empty");
         return;
     }
-    aBarcodes = strText.split('\n', Qt::SkipEmptyParts);
-    QMessageBox::information(this, "EANScannerEmu", "Barcodes were successfuly loaded");
+    m_aBarcodes = strText.split('\n', Qt::SkipEmptyParts);
+    m_nCurrentBarcodeIndex = 0; // Reset index for new barcodes
+    QMessageBox::information(this, "EANScannerEmu", "Barcodes were successfully loaded");
 
+}
+
+
+void MainWindow::on_SendAllButton_clicked()
+{
+    qDebug() << "MainWindow::on_SendAllButton_clicked()";
+    if(m_aBarcodes.isEmpty()) {
+        QMessageBox::warning(this, "Warning", "No barcodes to send");
+        return;
+    }
+    
+    // Initialize timer and start sending barcodes
+    m_nCurrentBarcodeIndex = 0;
+    m_pSendTimer = new QTimer(this);
+    m_pSendTimer->setSingleShot(true);
+    m_pSendTimer->setInterval(ui->TimeoutSlider->value() * 1000);
+    
+    connect(m_pSendTimer, &QTimer::timeout, this, &MainWindow::sendNextBarcode);
+    
+    // Start with first barcode
+    SendBarcodeByIterator(m_nCurrentBarcodeIndex);
+}
+
+bool MainWindow::SendBarcodeByIterator(int nIt)
+{
+    QString sCurBarcode = m_aBarcodes.at(nIt);
+    if(sCurBarcode.isEmpty()) {
+        qDebug() << "m_aBarcodes.at(" + QString::number(nIt) + ") is empty";
+        return false;
+    }
+    
+    // Send the barcode immediately
+    if(!m_pStringSender->SendString(&sCurBarcode)) {
+        qDebug() << "unable to send string " << sCurBarcode;
+        return false;
+    }
+    if(!m_pStringSender->SendReturn()) {
+        qDebug() << "unable to send Return " << sCurBarcode;
+        return false;
+    }
+    
+    qDebug() << "Sent barcode at index " << nIt << ": " << sCurBarcode;
+    
+    // Check if this is the last barcode
+    if(nIt == m_aBarcodes.size() - 1) {
+        // All barcodes sent
+        qDebug() << "All barcodes sent successfully!";
+        QMessageBox::information(this, "Send All", "All barcodes sent successfully!");
+        
+        // Clean up timer
+        if(m_pSendTimer) {
+            m_pSendTimer->deleteLater();
+            m_pSendTimer = nullptr;
+        }
+        return true;
+    }
+    
+    // Schedule next barcode with timer
+    if(m_pSendTimer) {
+        int timeoutSeconds = ui->TimeoutSlider->value();
+        qDebug() << "Scheduling next barcode in" << timeoutSeconds << "seconds";
+        
+        // Show progress message
+        QMessageBox::information(this, "Progress", 
+            QString("Barcode %1 of %2 sent! You have %3 seconds to switch windows.\n"
+                   "Next barcode will be sent automatically.").arg(nIt + 1).arg(m_aBarcodes.size()).arg(timeoutSeconds));
+        
+        // Start timer for next barcode
+        m_pSendTimer->start();
+    }
+    
+    return true;
+}
+
+void MainWindow::sendNextBarcode()
+{
+    if(m_nCurrentBarcodeIndex < m_aBarcodes.size()) {
+        qDebug() << "Sending barcode" << m_nCurrentBarcodeIndex << "of" << m_aBarcodes.size();
+        
+        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
+            m_nCurrentBarcodeIndex++;
+        } else {
+            qDebug() << "Failed to send barcode at index" << m_nCurrentBarcodeIndex;
+            QMessageBox::warning(this, "Error", "Failed to send barcode at index " + QString::number(m_nCurrentBarcodeIndex));
+            
+            // Clean up timer on error
+            if(m_pSendTimer) {
+                m_pSendTimer->deleteLater();
+                m_pSendTimer = nullptr;
+            }
+        }
+    }
+}
+
+
+void MainWindow::on_SendNextButton_clicked()
+{
+    qDebug() << "MainWindow::on_SendNextButton_clicked()";
+    
+    if(m_aBarcodes.isEmpty()) {
+        QMessageBox::warning(this, "Warning", "No barcodes loaded");
+        return;
+    }
+    
+    // If no current index is set, start from beginning
+    if(m_nCurrentBarcodeIndex >= m_aBarcodes.size()) {
+        m_nCurrentBarcodeIndex = 0;
+        qDebug() << "Resetting to first barcode";
+    }
+    
+    // Send current barcode
+    if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
+        m_nCurrentBarcodeIndex++;
+        
+        // Show progress
+        if(m_nCurrentBarcodeIndex < m_aBarcodes.size()) {
+            QMessageBox::information(this, "Progress", 
+                QString("Barcode %1 of %2 sent successfully!\n"
+                       "Click 'Send Next' again to send the next barcode.").arg(m_nCurrentBarcodeIndex).arg(m_aBarcodes.size()));
+        } else {
+            QMessageBox::information(this, "Complete", "All barcodes have been sent!");
+            m_nCurrentBarcodeIndex = 0; // Reset for next use
+        }
+    } else {
+        QMessageBox::warning(this, "Error", "Failed to send barcode at index " + QString::number(m_nCurrentBarcodeIndex));
+        // Don't increase index if sending failed
+    }
+}
+
+
+void MainWindow::on_SendPreviousButton_clicked()
+{
+    qDebug() << "MainWindow::on_SendPreviousButton_clicked()";
+    
+    if(m_aBarcodes.isEmpty()) {
+        QMessageBox::warning(this, "Warning", "No barcodes loaded");
+        return;
+    }
+    
+    // Decrease index to go to previous barcode
+    m_nCurrentBarcodeIndex--;
+    
+    // If we went below 0, wrap around to the last barcode
+    if(m_nCurrentBarcodeIndex < 0) {
+        m_nCurrentBarcodeIndex = m_aBarcodes.size() - 1;
+        qDebug() << "Wrapped around to last barcode";
+    }
+    
+    // Send the previous barcode
+    if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
+        // Show progress
+        QMessageBox::information(this, "Progress", 
+            QString("Previous barcode %1 of %2 sent successfully!\n"
+                   "Current position: %3").arg(m_nCurrentBarcodeIndex + 1).arg(m_aBarcodes.size()).arg(m_nCurrentBarcodeIndex + 1));
+    } else {
+        QMessageBox::warning(this, "Error", "Failed to send barcode at index " + QString::number(m_nCurrentBarcodeIndex));
+        // Restore the index to where it was before
+        m_nCurrentBarcodeIndex++;
+    }
 }
 

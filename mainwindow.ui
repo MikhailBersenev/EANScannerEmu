@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>942</width>
-    <height>658</height>
+    <width>947</width>
+    <height>569</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,6 +29,30 @@
          <bool>false</bool>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="TimeoutLayout">
+        <item>
+         <widget class="QLabel" name="TimeoutLabel">
+          <property name="text">
+           <string>Timeout</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="TimeoutSlider">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TickPosition::TicksAbove</enum>
+          </property>
+          <property name="tickInterval">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QPushButton" name="SendNextButton">
@@ -139,7 +163,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>942</width>
+     <width>947</width>
      <height>22</height>
     </rect>
    </property>
