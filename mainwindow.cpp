@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
         qDebug() << "Display Server Wayland";
         m_pStringSender = new CStringSenderLinuxWayland(this);
-        // ShowWaylandUnsupportedMessage();
+        ShowWaylandUnsupportedMessage();
     }
 #endif
 #ifdef Q_OS_WIN
