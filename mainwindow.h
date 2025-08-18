@@ -40,12 +40,15 @@ private slots:
     
     void on_SendPreviousButton_clicked();
 
+    void on_StopButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QStringList m_aBarcodes;
     unsigned int m_nIterator;
     CStringSender* m_pStringSender;
     bool SendBarcodeByIterator(int nIt);
+    void ShowWaylandUnsupportedMessage();
     
     // Timer-related members
     QTimer* m_pSendTimer;

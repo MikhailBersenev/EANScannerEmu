@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->TimeoutSlider->setSliderPosition(30);
+    this->setWindowTitle(this->windowTitle() + " ver. " + CUtils::GetVersion());
     setWindowIcon(QIcon(":/icon.ico"));
     qDebug() << "EANScannerEmu ver." << CUtils::GetVersion();
     m_pStringSender = nullptr;
@@ -23,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
         qDebug() << "Display Server Wayland";
         m_pStringSender = new CStringSenderLinuxWayland(this);
+       // ShowWaylandUnsupportedMessage();
     }
 #endif
 #ifdef Q_OS_WIN
@@ -134,10 +136,12 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
     }
     
     // Send the barcode immediately
+
     if(!m_pStringSender->SendString(&sCurBarcode)) {
         qDebug() << "unable to send string " << sCurBarcode;
         return false;
     }
+
     if(!m_pStringSender->SendReturn()) {
         qDebug() << "unable to send Return " << sCurBarcode;
         return false;
@@ -178,6 +182,12 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
     return true;
 }
 
+void MainWindow::ShowWaylandUnsupportedMessage()
+{
+    QMessageBox::critical(this, "You are using Wayland", "Wayland session is not supported at this moment. Switch to X.org session and try again");
+    exit(0);
+}
+
 void MainWindow::sendNextBarcode()
 {
     if(m_nCurrentBarcodeIndex < m_aBarcodes.size()) {
@@ -216,7 +226,6 @@ void MainWindow::on_SendNextButton_clicked()
         m_nCurrentBarcodeIndex = 0;
         qDebug() << "Resetting to first barcode";
     }
-    QThread::sleep(ui->TimeoutSlider->value());
     // Send current barcode
     if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
         m_nCurrentBarcodeIndex++;
@@ -254,7 +263,6 @@ void MainWindow::on_SendPreviousButton_clicked()
         m_nCurrentBarcodeIndex = m_aBarcodes.size() - 1;
         qDebug() << "Wrapped around to last barcode";
     }
-    QThread::sleep(ui->TimeoutSlider->value());
     // Send the previous barcode
     if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
         // Show progress
@@ -266,5 +274,27 @@ void MainWindow::on_SendPreviousButton_clicked()
         // Restore the index to where it was before
         m_nCurrentBarcodeIndex++;
     }
+}
+
+
+void MainWindow::on_StopButton_clicked()
+{
+    qDebug() << "MainWindow::on_StopButton_clicked()";
+    
+    // Stop the timer if it's running
+    if(m_pSendTimer && m_pSendTimer->isActive()) {
+        qDebug() << "Stopping send timer...";
+        m_pSendTimer->stop();
+        m_pSendTimer->deleteLater();
+        m_pSendTimer = nullptr;
+        
+        QMessageBox::information(this, "Stopped", "Sending process has been stopped.");
+    } else {
+        qDebug() << "No active timer to stop";
+        QMessageBox::information(this, "Info", "No active sending process to stop.");
+    }
+    
+    // Reset the current barcode index
+    m_nCurrentBarcodeIndex = 0;
 }
 
