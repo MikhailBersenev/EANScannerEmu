@@ -5,6 +5,11 @@
 #include "cstringsenderwin32.h"
 #include <QMainWindow>
 #include <QTimer>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+#include <QFileInfo>
+#include <QResource>
+#include <QSoundEffect>
 
 
 QT_BEGIN_NAMESPACE
@@ -49,6 +54,9 @@ private:
     CStringSender* m_pStringSender;
     bool SendBarcodeByIterator(int nIt);
     void ShowWaylandUnsupportedMessage();
+    void PlayScanSound();
+    void PlayScanSoundAlternative(); // Альтернативная функция с QSoundEffect
+    void TestSoundResources(); // Добавляем тестовую функцию
     
     // Timer-related members
     QTimer* m_pSendTimer;
