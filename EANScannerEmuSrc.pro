@@ -46,5 +46,7 @@ RESOURCES += \
 
 DISTFILES += \
     sound.wav
-
+unix: {
 LIBS += -lX11 -lXtst
+}
+RC_FILE = res.rc

@@ -23,7 +23,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="recources.qrc">:/images/PikPng.com_barcode-image-png_3807395.png</pixmap>
+         <pixmap resource="resources.qrc">:/images/PikPng.com_barcode-image-png_3807395.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>false</bool>
@@ -58,6 +58,13 @@
        <widget class="QCheckBox" name="MessagesCheckBox">
         <property name="text">
          <string>Show information messages</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="SendReturnCheckBox">
+        <property name="text">
+         <string>Send Return (Enter)</string>
         </property>
        </widget>
       </item>
@@ -185,7 +192,7 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources>
-  <include location="recources.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

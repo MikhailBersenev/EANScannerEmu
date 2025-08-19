@@ -11,7 +11,7 @@ public:
     virtual  bool SendReturn() override;
 
 private:
-    bool SendUnicodeChar(wchar_t ch, bool bKeyUp) const;
+    bool SendUnicodeChar(wchar_t ch, bool bKeyUp);
 
 
 };

@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->TimeoutSlider->setSliderPosition(10);
     this->setWindowTitle(this->windowTitle() + " ver. " + CUtils::GetVersion());
+    ui->SendReturnCheckBox->setChecked(true);
     setWindowIcon(QIcon(":/icon.ico"));
     qDebug() << "EANScannerEmu ver." << CUtils::GetVersion();
     m_pStringSender = nullptr;
@@ -161,10 +162,11 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
         qDebug() << "unable to send string " << sCurBarcode;
         return false;
     }
-
-    if(!m_pStringSender->SendReturn()) {
-        qDebug() << "unable to send Return " << sCurBarcode;
-        return false;
+    if(ui->SendReturnCheckBox->isChecked()) {
+        if(!m_pStringSender->SendReturn()) {
+            qDebug() << "unable to send Return " << sCurBarcode;
+            return false;
+        }
     }
     
     qDebug() << "Sent barcode at index " << nIt << ": " << sCurBarcode;

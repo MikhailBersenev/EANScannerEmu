@@ -1,5 +1,5 @@
 #include "cstringsenderlinuxx11.h"
-
+#ifdef Q_OS_LINUX
 #include <QDebug>
 #include <QThread>
 CStringSenderLinuxX11::CStringSenderLinuxX11(QObject *parent)
@@ -63,3 +63,4 @@ void CStringSenderLinuxX11::FlushAndCloseDisplay()
     XFlush(m_pDisplay);
     XCloseDisplay(m_pDisplay);
 }
+#endif

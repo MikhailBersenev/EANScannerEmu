@@ -7,7 +7,7 @@ CStringSenderWin32::CStringSenderWin32(QObject *parent)
     : CStringSender{parent}
 {}
 
-bool CStringSenderWin32::SendString(QString *pString) const
+bool CStringSenderWin32::SendString(QString *pString)
 {
     for (QChar ch : *pString)
     {
@@ -21,7 +21,7 @@ bool CStringSenderWin32::SendString(QString *pString) const
     return true;
 }
 
-bool CStringSenderWin32::SendReturn() const
+bool CStringSenderWin32::SendReturn()
 {
     INPUT in[2] = {};
     in[0].type = INPUT_KEYBOARD;
@@ -35,7 +35,7 @@ bool CStringSenderWin32::SendReturn() const
     return true;
 }
 
-bool CStringSenderWin32::SendUnicodeChar(wchar_t ch, bool bKeyUp) const
+bool CStringSenderWin32::SendUnicodeChar(wchar_t ch, bool bKeyUp)
 {
     INPUT in = {};
     in.type = INPUT_KEYBOARD;

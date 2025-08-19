@@ -5,6 +5,7 @@
 
 #include <QTextStream>
 
+#ifdef Q_OS_LINUX
 
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
@@ -23,5 +24,5 @@ private:
     void FlushAndCloseDisplay();
 
 };
-
+#endif
 #endif // CSTRINGSENDERLINUXX11_H
