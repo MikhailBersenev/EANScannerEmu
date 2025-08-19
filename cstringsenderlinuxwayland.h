@@ -7,8 +7,8 @@ class CStringSenderLinuxWayland : public CStringSender
 {
 public:
     explicit CStringSenderLinuxWayland(QObject *parent = nullptr);
-    bool SendString(QString* pString) const override;
-    bool SendReturn() const override;
+    bool SendString(QString* pString) override;
+    bool SendReturn() override;
 
 };
 

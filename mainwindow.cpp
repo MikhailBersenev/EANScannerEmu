@@ -2,6 +2,11 @@
 #include "ui_mainwindow.h"
 #include "generatedialog.h"
 #include "cutils.h"
+
+#include "cstringsenderlinuxwayland.h"
+#include "cstringsenderlinuxx11.h"
+#include "cstringsenderwin32.h"
+
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QTimer>
@@ -31,6 +36,13 @@ MainWindow::MainWindow(QWidget *parent)
         qDebug() << "Display Server Wayland";
         m_pStringSender = new CStringSenderLinuxWayland(this);
         ShowWaylandUnsupportedMessage();
+    } else if (sDisplayServer.contains("xcb", Qt::CaseInsensitive)) {
+        qDebug() << "Display Server X11";
+        m_pStringSender = new CStringSenderLinuxX11(this);
+    }
+    else {
+        QMessageBox::critical(this, "Error", "Unknown display server");
+        exit(0);
     }
 #endif
 #ifdef Q_OS_WIN

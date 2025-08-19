@@ -9,7 +9,7 @@ CStringSenderLinuxWayland::CStringSenderLinuxWayland(QObject *parent)
     : CStringSender{parent}
 {}
 
-bool CStringSenderLinuxWayland::SendString(QString* pString) const
+bool CStringSenderLinuxWayland::SendString(QString* pString)
 {
     if(pString->isEmpty()) {
         qDebug() << "CStringSenderLinuxWayland::SendString - given string is empty";
@@ -34,7 +34,7 @@ bool CStringSenderLinuxWayland::SendString(QString* pString) const
     return false;
 }
 
-bool CStringSenderLinuxWayland::SendReturn() const
+bool CStringSenderLinuxWayland::SendReturn()
 {
     qDebug() << "Attempting to send Return key...";
     if(QProcess::execute("which ydotool") == 0) {

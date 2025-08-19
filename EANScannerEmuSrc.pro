@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     cstringsender.cpp \
     cstringsenderlinuxwayland.cpp \
+    cstringsenderlinuxx11.cpp \
     cstringsenderwin32.cpp \
     cutils.cpp \
     generatedialog.cpp \
@@ -20,6 +21,7 @@ SOURCES += \
 HEADERS += \
     cstringsender.h \
     cstringsenderlinuxwayland.h \
+    cstringsenderlinuxx11.h \
     cstringsenderwin32.h \
     cutils.h \
     generatedialog.h \
@@ -44,3 +46,5 @@ RESOURCES += \
 
 DISTFILES += \
     sound.wav
+
+LIBS += -lX11 -lXtst
