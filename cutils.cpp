@@ -32,7 +32,7 @@ QStringList CUtils::GenerateEAN13(const int &rQnt)
 
 QString CUtils::GetVersion()
 {
-    const QString sVersion = "1.0";
+    const QString sVersion = "1.1";
     return sVersion;
 }
 
