@@ -51,7 +51,7 @@ private:
     unsigned int m_nIterator;
     CStringSender* m_pStringSender;
     bool SendBarcodeByIterator(int nIt);
-    void ShowWaylandUnsupportedMessage();
+    void ShowWaylandWarningMessage();
     void PlayScanSound();
     void PlayScanSoundAlternative(); // Альтернативная функция с QSoundEffect
     void TestSoundResources(); // Добавляем тестовую функцию

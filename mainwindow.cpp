@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
         qDebug() << "Display Server Wayland";
         m_pStringSender = new CStringSenderLinuxWayland(this);
-        ShowWaylandUnsupportedMessage();
+        ShowWaylandWarningMessage();
     } else if (sDisplayServer.contains("xcb", Qt::CaseInsensitive)) {
         qDebug() << "Display Server X11";
         m_pStringSender = new CStringSenderLinuxX11(this);
@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     else {
         QMessageBox::critical(this, "Error", "Unknown display server");
         exit(0);
+        ShowWaylandWarningMessage();
     }
 #endif
 #ifdef Q_OS_WIN
@@ -203,10 +204,10 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
     return true;
 }
 
-void MainWindow::ShowWaylandUnsupportedMessage()
+void MainWindow::ShowWaylandWarningMessage()
 {
-    QMessageBox::critical(this, "You are using Wayland", "Wayland session is not supported at this moment. Switch to X.org session and try again");
-    exit(0);
+    QMessageBox::warning(this, "Wayland Session Detected",
+        "EANScannerEmu works best in an X.Org session. Unfortunately, Wayland currently restricts keyboard emulation and may cause some features to malfunction.\n\nPlease log out and select 'X.Org' or 'X11' when choosing your session type.");
 }
 
 void MainWindow::PlayScanSound()
