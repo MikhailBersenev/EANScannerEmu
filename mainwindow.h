@@ -55,6 +55,7 @@ private:
     void PlayScanSound();
     void PlayScanSoundAlternative(); // Альтернативная функция с QSoundEffect
     void TestSoundResources(); // Добавляем тестовую функцию
+    void LoadBarcodesFromFile(); // Загрузка штрихкодов из файла
     
     // Timer-related members
     QTimer* m_pSendTimer;

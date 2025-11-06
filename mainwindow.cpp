@@ -16,6 +16,7 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QTemporaryFile>
+#include <QTextStream>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -31,6 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_pStringSender = nullptr;
     m_pSendTimer = nullptr;
     m_nCurrentBarcodeIndex = 0;
+    
+    // Загрузка штрихкодов из файла при запуске
+    LoadBarcodesFromFile();
+    
 #ifdef Q_OS_LINUX
     QString sDisplayServer = QGuiApplication::platformName();
     if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
@@ -62,11 +67,51 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::LoadBarcodesFromFile()
+{
+    const QString sBarcodesFileName = "barcodes.txt";
+    QFile file(sBarcodesFileName);
+    
+    if (!file.exists()) {
+        qDebug() << "Barcodes file not found:" << sBarcodesFileName;
+        return;
+    }
+    
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        QString strText = in.readAll();
+        file.close();
+        
+        if (!strText.isEmpty()) {
+            // Загружаем в поле ввода
+            ui->BarcodesMemo->setPlainText(strText);
+            
+            // Загружаем в массив
+            m_aBarcodes = strText.split('\n', Qt::SkipEmptyParts);
+            m_nCurrentBarcodeIndex = 0;
+            
+            qDebug() << "Loaded" << m_aBarcodes.size() << "barcodes from" << sBarcodesFileName;
+        }
+    } else {
+        qDebug() << "Failed to open barcodes file:" << file.errorString();
+    }
+}
+
 void MainWindow::on_CleanButton_clicked()
 {
     ui->BarcodesMemo->clear();
     m_aBarcodes.clear();
     m_nCurrentBarcodeIndex = 0; // Reset index when clearing
+    
+    // Удаление txt файла со штрихкодами
+    const QString sBarcodesFileName = "barcodes.txt";
+    if (QFile::exists(sBarcodesFileName)) {
+        if (QFile::remove(sBarcodesFileName)) {
+            qDebug() << "Barcodes file deleted:" << sBarcodesFileName;
+        } else {
+            qDebug() << "Failed to delete barcodes file:" << sBarcodesFileName;
+        }
+    }
 
 }
 
@@ -116,6 +161,22 @@ void MainWindow::on_ReadButton_clicked()
     }
     m_aBarcodes = strText.split('\n', Qt::SkipEmptyParts);
     m_nCurrentBarcodeIndex = 0; // Reset index for new barcodes
+    
+    // Сохранение штрихкодов в txt файл
+    const QString sBarcodesFileName = "barcodes.txt";
+    QFile file(sBarcodesFileName);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        for (const QString &barcode : m_aBarcodes) {
+            out << barcode << "\n";
+        }
+        file.close();
+        qDebug() << "Barcodes saved to" << sBarcodesFileName;
+    } else {
+        qDebug() << "Failed to save barcodes to file:" << file.errorString();
+        QMessageBox::warning(this, "Warning", "Failed to save barcodes to file: " + file.errorString());
+    }
+    
     QMessageBox::information(this, "EANScannerEmu", "Barcodes were successfully loaded");
 
 }
@@ -224,15 +285,15 @@ void MainWindow::PlayScanSound()
     }
     QMediaPlayer* pPlayer = new QMediaPlayer(this);
     QAudioOutput* pAudioOutput = new QAudioOutput(this);
-
+    
     pPlayer->setAudioOutput(pAudioOutput);
     pPlayer->setSource(QUrl::fromLocalFile(tempFile->fileName()));
-    pAudioOutput->setVolume(1.0); //Qt6
+    pAudioOutput->setVolume(1.0);
     pPlayer->play();
 
     //Clean everything
     connect(pPlayer, &QMediaPlayer::mediaStatusChanged, this, [=](QMediaPlayer::MediaStatus status) {
-        if (status == QMediaPlayer::EndOfMedia) {
+        if (status == QMediaPlayer::MediaStatus::EndOfMedia) {
             pPlayer->deleteLater();
             pAudioOutput->deleteLater();
             QFile::remove(tempFile->fileName()); // удаляем временный wav
