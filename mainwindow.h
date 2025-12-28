@@ -45,6 +45,8 @@ private slots:
 
     void on_StopButton_clicked();
 
+    void on_WebsiteButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QStringList m_aBarcodes;

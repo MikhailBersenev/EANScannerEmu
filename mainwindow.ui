@@ -41,11 +41,8 @@
         </item>
         <item>
          <widget class="QSlider" name="TimeoutSlider">
-          <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
-          </property>
           <property name="tickPosition">
-           <enum>QSlider::TickPosition::TicksAbove</enum>
+           <enum>QSlider::NoTicks</enum>
           </property>
           <property name="tickInterval">
            <number>10</number>
@@ -136,6 +133,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="WebsiteButton">
+        <property name="text">
+         <string>Website</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="AboutButton">
         <property name="text">
          <string>About</string>
@@ -144,9 +148,6 @@
       </item>
       <item>
        <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
         <property name="sizeHint" stdset="0">
          <size>
           <width>40</width>
@@ -185,7 +186,7 @@
      <x>0</x>
      <y>0</y>
      <width>947</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

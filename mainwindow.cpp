@@ -283,6 +283,7 @@ void MainWindow::PlayScanSound()
         tempFile->write(file.readAll());
         tempFile->close();
     }
+
     QMediaPlayer* pPlayer = new QMediaPlayer(this);
     QAudioOutput* pAudioOutput = new QAudioOutput(this);
     
@@ -421,3 +422,8 @@ void MainWindow::on_StopButton_clicked()
     m_nCurrentBarcodeIndex = 0;
 }
 
+
+void MainWindow::on_WebsiteButton_clicked()
+{
+    QDesktopServices::openUrl(QUrl::fromUserInput("http://mbersenev.ph/"));
+}
