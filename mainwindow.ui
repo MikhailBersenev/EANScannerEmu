@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>947</width>
-    <height>569</height>
+    <width>931</width>
+    <height>658</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,11 +41,8 @@
         </item>
         <item>
          <widget class="QSlider" name="TimeoutSlider">
-          <property name="tickPosition">
-           <enum>QSlider::NoTicks</enum>
-          </property>
-          <property name="tickInterval">
-           <number>10</number>
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -148,6 +145,9 @@
       </item>
       <item>
        <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
         <property name="sizeHint" stdset="0">
          <size>
           <width>40</width>
@@ -185,8 +185,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>947</width>
-     <height>23</height>
+     <width>931</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
