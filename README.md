@@ -5,7 +5,7 @@
 **A cross-platform barcode scanner emulator for testing and automation**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Qt Version](https://img.shields.io/badge/Qt-6.10+-green.svg)](https://www.qt.io/)
+[![Qt Version](https://img.shields.io/badge/Qt-6.8+-green.svg)](https://www.qt.io/)
 
 </div>
 
