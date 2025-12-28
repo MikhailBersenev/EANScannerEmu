@@ -24,11 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->TimeoutSlider->setMinimum(1);
-    ui->TimeoutSlider->setMaximum(30);
-    ui->TimeoutSlider->setTickPosition(QSlider::TicksBelow);
-    ui->TimeoutSlider->setTickInterval(5);
-    ui->TimeoutSlider->setPageStep(5);
     ui->TimeoutSlider->setSliderPosition(10);
     this->setWindowTitle(this->windowTitle() + " ver. " + CUtils::GetVersion());
     ui->SendReturnCheckBox->setChecked(true);
