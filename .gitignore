@@ -1,0 +1,118 @@
+# Qt Creator
+*.pro.user
+*.pro.user.*
+*.qmlc
+*.jom
+*.autosave
+
+# Build directories
+build/
+build-*/
+*-build-*/
+*.xcodeproj
+*.xcworkspace
+
+# Compiled Object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Precompiled Headers
+*.gch
+*.pch
+*.d
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+EANScannerEmuSrc
+
+# Qt generated files
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.moc
+
+# Qt Creator
+*.pro.user
+*.pro.user.*
+*.qmlc
+*.jom
+*.autosave
+
+# Qt Creator Qml
+*.qmlc
+*.jsc
+
+# Qt Creator CMake
+CMakeLists.txt.user*
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Qt Creator Local machine specific files
+*.pro.user.*
+*.pro.user
+
+# Qt Creator Session files
+*.pro.user.*
+
+# Qt Creator Backup files
+*~
+
+# Qt Creator Auto generated files
+*.pro.user
+*.pro.user.*
+
+# Generated translation files
+*.qm
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE files
+.idea/
+.vscode/
+*.code-workspace
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Release files
+release/
+debug/
+
+# User specific files
+barcodes.txt
+
