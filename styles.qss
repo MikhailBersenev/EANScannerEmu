@@ -1,0 +1,643 @@
+/* Material Design темная тема с фиолетовой палитрой для EANScannerEmu */
+
+/* Основное окно */
+QMainWindow {
+    background-color: #121212;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+QWidget {
+    background-color: #121212;
+    color: rgba(255, 255, 255, 0.87);
+    font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    font-size: 14px;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+/* Кнопки - Material Design плоский стиль */
+QPushButton {
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    color: #BB86FC;
+    padding: 10px 24px;
+    font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    min-height: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+QPushButton:hover {
+    background-color: rgba(187, 134, 252, 0.12);
+}
+
+QPushButton:pressed {
+    background-color: rgba(187, 134, 252, 0.24);
+}
+
+QPushButton:disabled {
+    background-color: #1E1E1E;
+    border-color: #2D2D2D;
+    color: rgba(255, 255, 255, 0.26);
+}
+
+/* Raised Button - Send All */
+QPushButton#SendAllButton {
+    background-color: #9C27B0;
+    color: #FFFFFF;
+    font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    font-weight: 500;
+    border: none;
+}
+
+QPushButton#SendAllButton:hover {
+    background-color: #7B1FA2;
+}
+
+QPushButton#SendAllButton:pressed {
+    background-color: #6A1B9A;
+}
+
+/* Success Button - Send Next */
+QPushButton#SendNextButton {
+    background-color: #4CAF50;
+    color: #FFFFFF;
+    border: none;
+}
+
+QPushButton#SendNextButton:hover {
+    background-color: #388E3C;
+}
+
+QPushButton#SendNextButton:pressed {
+    background-color: #2E7D32;
+}
+
+/* Purple Button - Send Previous */
+QPushButton#SendPreviousButton {
+    background-color: #9C27B0;
+    color: #FFFFFF;
+    border: none;
+}
+
+QPushButton#SendPreviousButton:hover {
+    background-color: #7B1FA2;
+}
+
+QPushButton#SendPreviousButton:pressed {
+    background-color: #6A1B9A;
+}
+
+/* Error Button - Stop */
+QPushButton#StopButton {
+    background-color: #F44336;
+    color: #FFFFFF;
+    font-weight: 500;
+    border: none;
+}
+
+QPushButton#StopButton:hover {
+    background-color: #D32F2F;
+}
+
+QPushButton#StopButton:pressed {
+    background-color: #C62828;
+}
+
+/* Info Button - Read */
+QPushButton#ReadButton {
+    background-color: #9C27B0;
+    color: #FFFFFF;
+    border: none;
+}
+
+QPushButton#ReadButton:hover {
+    background-color: #7B1FA2;
+}
+
+QPushButton#ReadButton:pressed {
+    background-color: #6A1B9A;
+}
+
+/* Warning Button - Generate */
+QPushButton#GenerateButton {
+    background-color: #FF9800;
+    color: #FFFFFF;
+    border: none;
+}
+
+QPushButton#GenerateButton:hover {
+    background-color: #F57C00;
+}
+
+QPushButton#GenerateButton:pressed {
+    background-color: #E65100;
+}
+
+/* Grey Button - Clean */
+QPushButton#CleanButton {
+    background-color: #757575;
+    color: #FFFFFF;
+    border: none;
+}
+
+QPushButton#CleanButton:hover {
+    background-color: #616161;
+}
+
+QPushButton#CleanButton:pressed {
+    background-color: #424242;
+}
+
+/* Flat Buttons - GitHub, Website, About */
+QPushButton#GitHubButton,
+QPushButton#WebsiteButton,
+QPushButton#AboutButton {
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    color: #BB86FC;
+    padding: 8px 16px;
+    min-width: 80px;
+    text-transform: none;
+    font-weight: 500;
+}
+
+QPushButton#GitHubButton:hover,
+QPushButton#WebsiteButton:hover,
+QPushButton#AboutButton:hover {
+    background-color: rgba(187, 134, 252, 0.12);
+}
+
+QPushButton#GitHubButton:pressed,
+QPushButton#WebsiteButton:pressed,
+QPushButton#AboutButton:pressed {
+    background-color: rgba(187, 134, 252, 0.24);
+}
+
+/* Текстовое поле - Material Design (стиль как у QLineEdit) */
+QTextEdit {
+    background-color: #1E1E1E;
+    border: none;
+    border-bottom: 2px solid #424242;
+    border-radius: 0px;
+    color: rgba(255, 255, 255, 0.87);
+    padding: 8px 0px;
+    selection-background-color: rgba(156, 39, 176, 0.4);
+    selection-color: rgba(255, 255, 255, 0.87);
+    font-family: "Roboto Mono", "SF Mono", "Consolas", "Monaco", "Courier New", "Liberation Mono", monospace;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+QTextEdit:focus {
+    border-bottom: 2px solid #9C27B0;
+    background-color: #2D2D2D;
+}
+
+QTextEdit:hover {
+    border-bottom: 2px solid #9C27B0;
+}
+
+/* Поле ввода - Material Design */
+QLineEdit {
+    background-color: #1E1E1E;
+    border: none;
+    border-bottom: 2px solid #424242;
+    border-radius: 0px;
+    color: rgba(255, 255, 255, 0.87);
+    padding: 8px 0px;
+    selection-background-color: rgba(156, 39, 176, 0.4);
+    selection-color: rgba(255, 255, 255, 0.87);
+    font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+QLineEdit:focus {
+    border-bottom: 2px solid #9C27B0;
+    background-color: #2D2D2D;
+}
+
+QLineEdit:hover {
+    border-bottom: 2px solid #9C27B0;
+}
+
+/* Чекбоксы - Material Design круглые */
+QCheckBox {
+    color: rgba(255, 255, 255, 0.87);
+    spacing: 12px;
+    font-size: 14px;
+    padding: 4px 0px;
+    min-height: 24px;
+    font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+/* Круглый чекбокс - Unchecked */
+QCheckBox::indicator {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #757575;
+    border-radius: 11px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 transparent,
+                                stop:1 transparent);
+    margin: 2px;
+    /* Идеально круглый */
+    min-width: 22px;
+    min-height: 22px;
+    max-width: 22px;
+    max-height: 22px;
+}
+
+QCheckBox::indicator:hover {
+    border-color: #9C27B0;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(156, 39, 176, 0.1),
+                                stop:1 rgba(156, 39, 176, 0.05));
+}
+
+QCheckBox::indicator:pressed {
+    border-color: #7B1FA2;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(156, 39, 176, 0.2),
+                                stop:1 rgba(156, 39, 176, 0.1));
+}
+
+/* Круглый чекбокс - Checked */
+QCheckBox::indicator:checked {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #BB86FC,
+                                stop:1 #9C27B0);
+    border-color: #9C27B0;
+    border-width: 2px;
+    image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTYuMTdMMTkuNTkgNS41OEwyMSA3TDEwIDJMMyA5TDUuNDEgMTEuNDFMOSAxNi4xN1oiIGZpbGw9IndoaXRlIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=);
+}
+
+QCheckBox::indicator:checked:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #D1A9FF,
+                                stop:1 #7B1FA2);
+    border-color: #7B1FA2;
+}
+
+QCheckBox::indicator:checked:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #9C27B0,
+                                stop:1 #6A1B9A);
+    border-color: #6A1B9A;
+}
+
+QCheckBox:disabled {
+    color: rgba(255, 255, 255, 0.26);
+}
+
+QCheckBox::indicator:disabled {
+    background-color: transparent;
+    border-color: #424242;
+}
+
+QCheckBox::indicator:checked:disabled {
+    background-color: #424242;
+    border-color: #424242;
+    image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTYuMTdMMTkuNTkgNS41OEwyMSA3TDEwIDJMMyA5TDUuNDEgMTEuNDFMOSAxNi4xN1oiIGZpbGw9IndoaXRlIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=);
+}
+
+/* Слайдер - Material Design */
+QSlider {
+    /* Выравнивание по центру вертикально */
+    margin: 0px;
+    padding: 0px;
+}
+
+/* Дорожка слайдера */
+QSlider::groove:horizontal {
+    border: none;
+    height: 6px;
+    background: #2D2D2D;
+    border-radius: 3px;
+    margin: 0px;
+}
+
+/* Активная часть дорожки (слева от ползунка) */
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                stop:0 #9C27B0,
+                                stop:0.5 #BB86FC,
+                                stop:1 #9C27B0);
+    border-radius: 3px;
+    height: 6px;
+    margin: 0px;
+}
+
+/* Неактивная часть дорожки (справа от ползунка) */
+QSlider::add-page:horizontal {
+    background: transparent;
+    border-radius: 3px;
+    height: 6px;
+    margin: 0px;
+}
+
+/* Ползунок */
+QSlider::handle:horizontal {
+    background: #BB86FC;
+    border: 3px solid #1E1E1E;
+    width: 20px;
+    height: 20px;
+    margin: -7px 0;
+    border-radius: 10px;
+    /* Идеально круглый */
+    min-width: 10px;
+    min-height: 10px;
+    max-width: 10px;
+    max-height: 10px;
+}
+
+QSlider::handle:horizontal:pressed {
+    background: #9C27B0;
+    border: 3px solid #1E1E1E;
+}
+
+QSlider::handle:horizontal:disabled {
+    background: #424242;
+    border: 3px solid #2D2D2D;
+}
+
+
+/* Комбобокс - Material Design */
+QComboBox {
+    background-color: #1E1E1E;
+    border: none;
+    border-bottom: 2px solid #424242;
+    border-radius: 0px;
+    color: rgba(255, 255, 255, 0.87);
+    padding: 8px 0px;
+    min-width: 120px;
+    font-size: 16px;
+}
+
+QComboBox:hover {
+    border-bottom: 2px solid #9C27B0;
+    background-color: #2D2D2D;
+}
+
+QComboBox:focus {
+    border-bottom: 2px solid #9C27B0;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 30px;
+    background-color: transparent;
+}
+
+QComboBox::down-arrow {
+    image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTcgMTBMMTIgMTVMMTcgMTBIN1oiIGZpbGw9IiNCMDg2RkMiLz4KPC9zdmc+);
+    width: 24px;
+    height: 24px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #1E1E1E;
+    border: 1px solid #424242;
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.87);
+    selection-background-color: rgba(156, 39, 176, 0.3);
+    selection-color: rgba(255, 255, 255, 0.87);
+    padding: 4px;
+}
+
+/* Диалог - Material Design */
+QDialog {
+    background-color: #121212;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+QDialogButtonBox QPushButton {
+    min-width: 80px;
+    padding: 8px 20px;
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+QDialogButtonBox QPushButton[text="OK"] {
+    background-color: #9C27B0;
+    color: #FFFFFF;
+    border: none;
+}
+
+QDialogButtonBox QPushButton[text="OK"]:hover {
+    background-color: #7B1FA2;
+}
+
+QDialogButtonBox QPushButton[text="OK"]:pressed {
+    background-color: #6A1B9A;
+}
+
+QDialogButtonBox QPushButton[text="Cancel"] {
+    background-color: transparent;
+    color: #BB86FC;
+    border: none;
+}
+
+QDialogButtonBox QPushButton[text="Cancel"]:hover {
+    background-color: rgba(187, 134, 252, 0.12);
+}
+
+QDialogButtonBox QPushButton[text="Cancel"]:pressed {
+    background-color: rgba(187, 134, 252, 0.24);
+}
+
+/* Метки - Material Design */
+QLabel {
+    color: rgba(255, 255, 255, 0.87);
+    background-color: transparent;
+    font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+QLabel#TimeoutLabel {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+    padding-right: 12px;
+    min-width: 80px;
+    /* Выравнивание по центру вертикально с дорожкой слайдера */
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin: 0px;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+QLabel#CopyrightLabel {
+    color: rgba(255, 255, 255, 0.54);
+    font-size: 12px;
+}
+
+/* Меню - Material Design */
+QMenuBar {
+    background-color: #1E1E1E;
+    color: rgba(255, 255, 255, 0.87);
+    border-bottom: 1px solid #424242;
+    padding: 4px;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+QMenuBar::item:selected {
+    background-color: rgba(187, 134, 252, 0.12);
+    color: #BB86FC;
+}
+
+QMenu {
+    background-color: #1E1E1E;
+    border: 1px solid #424242;
+    color: rgba(255, 255, 255, 0.87);
+    padding: 8px;
+}
+
+QMenu::item {
+    padding: 12px 24px;
+    border-radius: 4px;
+}
+
+QMenu::item:selected {
+    background-color: rgba(156, 39, 176, 0.2);
+    color: #BB86FC;
+}
+
+/* Строка состояния - Material Design */
+QStatusBar {
+    background-color: #1E1E1E;
+    color: rgba(255, 255, 255, 0.54);
+    border-top: 1px solid #424242;
+    padding: 4px;
+}
+
+/* Скроллбары - Material Design */
+QScrollBar:vertical {
+    background-color: #1E1E1E;
+    width: 12px;
+    border: none;
+    border-radius: 6px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #424242;
+    border-radius: 6px;
+    min-height: 30px;
+    margin: 2px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #9C27B0;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background-color: #1E1E1E;
+    height: 12px;
+    border: none;
+    border-radius: 6px;
+    margin: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #424242;
+    border-radius: 6px;
+    min-width: 30px;
+    margin: 2px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #9C27B0;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+/* Сообщения - Material Design */
+QMessageBox {
+    background-color: #121212;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+QMessageBox QPushButton {
+    min-width: 80px;
+    padding: 8px 20px;
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    /* Улучшение рендеринга текста */
+    -qt-style-features: "FontAntialiasing";
+}
+
+QMessageBox QPushButton[text*="OK"],
+QMessageBox QPushButton[text*="Yes"] {
+    background-color: #9C27B0;
+    color: #FFFFFF;
+    border: none;
+}
+
+QMessageBox QPushButton[text*="OK"]:hover,
+QMessageBox QPushButton[text*="Yes"]:hover {
+    background-color: #7B1FA2;
+}
+
+QMessageBox QPushButton[text*="OK"]:pressed,
+QMessageBox QPushButton[text*="Yes"]:pressed {
+    background-color: #6A1B9A;
+}
+
+QMessageBox QPushButton[text*="Cancel"],
+QMessageBox QPushButton[text*="No"] {
+    background-color: transparent;
+    color: #BB86FC;
+    border: none;
+}
+
+QMessageBox QPushButton[text*="Cancel"]:hover,
+QMessageBox QPushButton[text*="No"]:hover {
+    background-color: rgba(187, 134, 252, 0.12);
+}
+
+QMessageBox QPushButton[text*="Cancel"]:pressed,
+QMessageBox QPushButton[text*="No"]:pressed {
+    background-color: rgba(187, 134, 252, 0.24);
+}

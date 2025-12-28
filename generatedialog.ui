@@ -7,8 +7,26 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>217</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>217</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>400</width>
+    <height>217</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>400</width>
+    <height>217</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Generate</string>
@@ -19,12 +37,18 @@
      <item>
       <widget class="QLabel" name="TypeLabel">
        <property name="text">
-        <string>Type</string>
+        <string>Type       </string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QComboBox" name="comboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <item>
         <property name="text">
          <string>EAN8</string>
