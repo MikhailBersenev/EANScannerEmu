@@ -165,7 +165,7 @@
       <item>
        <widget class="QLabel" name="CopyrightLabel">
         <property name="text">
-         <string>Mikhail Bersenev 2025</string>
+         <string>Mikhail Bersenev 2026</string>
         </property>
        </widget>
       </item>
