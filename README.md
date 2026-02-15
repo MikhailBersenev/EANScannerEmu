@@ -54,6 +54,7 @@ EANScannerEmu is a powerful application that emulates a barcode scanner, allowin
 - **Linux X11 (X.org Server)**: Full support
 - **Linux Wayland**: Requires `ydotool` for keyboard emulation
 - **Windows**: Native support via Windows API
+- **macOS**: Native support via Quartz Event Services (ApplicationServices, Carbon). For sending keystrokes to other apps, grant **Input Monitoring** (or **Accessibility**) permission in **System Settings → Privacy & Security** when prompted.
 
 ## License
 

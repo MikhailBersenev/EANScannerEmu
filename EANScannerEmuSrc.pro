@@ -13,6 +13,7 @@ SOURCES += \
     cstringsenderlinuxwayland.cpp \
     cstringsenderlinuxx11.cpp \
     cstringsenderwin32.cpp \
+    cstringsendermac.cpp \
     cutils.cpp \
     generatedialog.cpp \
     main.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
     cstringsenderlinuxwayland.h \
     cstringsenderlinuxx11.h \
     cstringsenderwin32.h \
+    cstringsendermac.h \
     cutils.h \
     generatedialog.h \
     mainwindow.h
@@ -46,7 +48,10 @@ RESOURCES += \
 
 DISTFILES += \
     sound.wav
-unix: {
-LIBS += -lX11 -lXtst
+unix:!macx: {
+    LIBS += -lX11 -lXtst
+}
+macx: {
+    LIBS += -framework ApplicationServices -framework Carbon
 }
 RC_FILE = res.rc

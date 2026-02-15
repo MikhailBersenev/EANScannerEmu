@@ -6,6 +6,7 @@
 #include "cstringsenderlinuxwayland.h"
 #include "cstringsenderlinuxx11.h"
 #include "cstringsenderwin32.h"
+#include "cstringsendermac.h"
 
 #include <QMessageBox>
 #include <QDesktopServices>
@@ -55,8 +56,9 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef Q_OS_WIN
     m_pStringSender = new CStringSenderWin32(this);
 #endif
-
-
+#ifdef Q_OS_MACOS
+    m_pStringSender = new CStringSenderMac(this);
+#endif
 
 }
 
