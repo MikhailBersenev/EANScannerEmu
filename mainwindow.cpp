@@ -18,6 +18,7 @@
 #include <QAudioOutput>
 #include <QTemporaryFile>
 #include <QTextStream>
+#include <QStandardPaths>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -71,7 +72,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::LoadBarcodesFromFile()
 {
-    const QString sBarcodesFileName = "barcodes.txt";
+    const QString sBarcodesFileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/barcodes.txt";
     QFile file(sBarcodesFileName);
     
     if (!file.exists()) {
@@ -106,7 +107,7 @@ void MainWindow::on_CleanButton_clicked()
     m_nCurrentBarcodeIndex = 0; // Reset index when clearing
     
     // Удаление txt файла со штрихкодами
-    const QString sBarcodesFileName = "barcodes.txt";
+    const QString sBarcodesFileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/barcodes.txt";
     if (QFile::exists(sBarcodesFileName)) {
         if (QFile::remove(sBarcodesFileName)) {
             qDebug() << "Barcodes file deleted:" << sBarcodesFileName;
@@ -165,7 +166,7 @@ void MainWindow::on_ReadButton_clicked()
     m_nCurrentBarcodeIndex = 0; // Reset index for new barcodes
     
     // Сохранение штрихкодов в txt файл
-    const QString sBarcodesFileName = "barcodes.txt";
+    const QString sBarcodesFileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/barcodes.txt";
     QFile file(sBarcodesFileName);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&file);
