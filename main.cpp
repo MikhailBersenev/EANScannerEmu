@@ -6,10 +6,17 @@
 #include <QFile>
 #include <QTextStream>
 #include <QFont>
+#include <QIcon>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+#if defined(Q_OS_MACOS)
+    a.setWindowIcon(QIcon(":/icon.png"));
+#else
+    a.setWindowIcon(QIcon(":/icon.ico"));
+#endif
 
     // Настройка сглаживания шрифтов для красивого рендеринга
     QFont defaultFont = a.font();

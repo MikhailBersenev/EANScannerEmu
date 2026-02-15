@@ -29,7 +29,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->TimeoutSlider->setSliderPosition(10);
     this->setWindowTitle(this->windowTitle() + " ver. " + CUtils::GetVersion());
     ui->SendReturnCheckBox->setChecked(true);
+    // На macOS PNG отображается корректнее, чем .ico (док, заголовок окна)
+#if defined(Q_OS_MACOS)
+    setWindowIcon(QIcon(":/icon.png"));
+#else
     setWindowIcon(QIcon(":/icon.ico"));
+#endif
     qDebug() << "EANScannerEmu ver." << CUtils::GetVersion();
     m_pStringSender = nullptr;
     m_pSendTimer = nullptr;
