@@ -130,14 +130,23 @@ void MainWindow::on_GenerateButton_clicked()
     pGenerateDialog->exec();
     const int nQnt = pGenerateDialog->GetQuantity();
     GenerateDialog::Type nType = pGenerateDialog->GetType();
+    QString sPrefix = pGenerateDialog->GetPrefix();
     delete pGenerateDialog;
     QStringList aGeneratedItems;
     switch (nType) {
     case GenerateDialog::Type::EAN8:
-        aGeneratedItems = CUtils::GenerateEAN8(nQnt);
+        if (sPrefix.isEmpty()) {
+            aGeneratedItems = CUtils::GenerateEAN8(nQnt);
+        } else {
+            aGeneratedItems = CUtils::GenerateEAN8(nQnt, sPrefix);
+        }
         break;
     case GenerateDialog::Type::EAN13:
-        aGeneratedItems = CUtils::GenerateEAN13(nQnt);
+        if (sPrefix.isEmpty()) {
+            aGeneratedItems = CUtils::GenerateEAN13(nQnt);
+        } else {
+            aGeneratedItems = CUtils::GenerateEAN13(nQnt, sPrefix);
+        }
         break;
     default:
         return;
@@ -292,21 +301,17 @@ void MainWindow::PlayScanSound()
         tempFile->close();
     }
 
-    QMediaPlayer* pPlayer = new QMediaPlayer(this);
-    QAudioOutput* pAudioOutput = new QAudioOutput(this);
-    
-    pPlayer->setAudioOutput(pAudioOutput);
-    pPlayer->setSource(QUrl::fromLocalFile(tempFile->fileName()));
-    pAudioOutput->setVolume(1.0);
-    pPlayer->play();
+    QSoundEffect* pSound = new QSoundEffect(this);
+    pSound->setSource(QUrl::fromLocalFile(tempFile->fileName()));
+    pSound->setVolume(1.0);
+    pSound->play();
 
     //Clean everything
-    connect(pPlayer, &QMediaPlayer::mediaStatusChanged, this, [=](QMediaPlayer::MediaStatus status) {
-        if (status == QMediaPlayer::MediaStatus::EndOfMedia) {
-            pPlayer->deleteLater();
-            pAudioOutput->deleteLater();
-            QFile::remove(tempFile->fileName()); // удаляем временный wav
+    connect(pSound, &QSoundEffect::playingChanged, this, [=]() {
+        if (!pSound->isPlaying()) {
+            QFile::remove(tempFile->fileName());
             tempFile->deleteLater();
+            pSound->deleteLater();
         }
     });
 

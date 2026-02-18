@@ -17,12 +17,42 @@ QStringList CUtils::GenerateEAN8(const int &rQnt)
     return AResult;
 }
 
+QStringList CUtils::GenerateEAN8(const int &rQnt, const QString &rPrefix)
+{
+    QStringList AResult;
+    int prefixLen = rPrefix.length();
+    if (prefixLen >= 7) return AResult; // invalid
+    for(int i = 0; i < rQnt; i++) {
+        QString strCode = rPrefix;
+        for (int j = prefixLen; j < 7; ++j)
+            strCode.append(QString::number(QRandomGenerator::global()->bounded(10)));
+        int nCheck = EanChecksum(strCode);
+         AResult.append(strCode + QString::number(nCheck));
+    }
+    return AResult;
+}
+
 QStringList CUtils::GenerateEAN13(const int &rQnt)
 {
     QStringList AResult;
     for(int i = 0; i < rQnt; i++) {
         QString strCode;
         for (int j = 0; j < 12; ++j)
+            strCode.append(QString::number(QRandomGenerator::global()->bounded(10)));
+        int nCheck = EanChecksum(strCode);
+        AResult.append(strCode + QString::number(nCheck));
+    }
+    return AResult;
+}
+
+QStringList CUtils::GenerateEAN13(const int &rQnt, const QString &rPrefix)
+{
+    QStringList AResult;
+    int prefixLen = rPrefix.length();
+    if (prefixLen >= 12) return AResult; // invalid
+    for(int i = 0; i < rQnt; i++) {
+        QString strCode = rPrefix;
+        for (int j = prefixLen; j < 12; ++j)
             strCode.append(QString::number(QRandomGenerator::global()->bounded(10)));
         int nCheck = EanChecksum(strCode);
         AResult.append(strCode + QString::number(nCheck));
