@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.2
+Type=Application
+Name=EAN Scanner Emu
+GenericName=Barcode Scanner Emulator
+Comment=Emulate a barcode scanner via keyboard input
+Exec=EANScannerEmuSrc %f
+Icon=EANScannerEmu
+Terminal=false
+Categories=Utility;Development;
+Keywords=barcode;EAN;scanner;emulator;

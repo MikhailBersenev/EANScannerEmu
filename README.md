@@ -56,6 +56,17 @@ EANScannerEmu is a powerful application that emulates a barcode scanner, allowin
 - **Windows**: Native support via Windows API
 - **macOS**: Native support via Quartz Event Services (ApplicationServices, Carbon). For sending keystrokes to other apps, grant **Input Monitoring** (or **Accessibility**) permission in **System Settings → Privacy & Security** when prompted.
 
+## Building
+
+See **[BUILD.md](BUILD.md)** for prerequisites and step-by-step instructions (qmake on Linux, Windows, macOS, and **AppImage** for Linux x86_64).
+
+**AppImage (quick):** from the repository root,
+
+```bash
+export QMAKE=/usr/bin/qmake6
+./packaging/linux/build-appimage.sh
+```
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
