@@ -34,7 +34,7 @@ FORMS += \
     mainwindow.ui
 
 # TRANSLATIONS += \
-#     EANScannerEmuSrc_en_US.ts
+#     EANScannerEmu_en_US.ts
 # CONFIG += lrelease
 # CONFIG += embed_translations
 
