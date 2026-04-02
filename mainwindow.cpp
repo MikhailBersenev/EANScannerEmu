@@ -19,6 +19,7 @@
 #include <QTemporaryFile>
 #include <QTextStream>
 #include <QStandardPaths>
+#include <QSettings>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -52,6 +53,10 @@ MainWindow::MainWindow(QWidget *parent)
     } else if (sDisplayServer.contains("xcb", Qt::CaseInsensitive)) {
         qDebug() << "Display Server X11";
         m_pStringSender = new CStringSenderLinuxX11(this);
+        QSettings settings("Mikhail Bersenev", "EANScammerEmu", this);
+        if(settings.contains("waylandMessage")) {
+            settings.remove("waylandMessage");
+        }
     }
     else {
         QMessageBox::critical(this, "Error", "Unknown display server");
@@ -284,8 +289,12 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
 
 void MainWindow::ShowWaylandWarningMessage()
 {
-    QMessageBox::warning(this, "Wayland Session Detected",
-        "EANScannerEmu works best in an X.Org session. Unfortunately, Wayland currently restricts keyboard emulation and may cause some features to malfunction.\n\nPlease log out and select 'X.Org' or 'X11' when choosing your session type.");
+    QSettings settings("Mikhail Bersenev", "EANScammerEmu", this);
+    if(!settings.contains("waylandMessage")) {
+        QMessageBox::warning(this, "Wayland Session Detected",
+                             "EANScannerEmu works best in an X.Org session. Unfortunately, Wayland currently restricts keyboard emulation and may cause some features to malfunction.\n\nPlease log out and select 'X.Org' or 'X11' when choosing your session type.");
+        settings.setValue("waylandMessage", "1");
+    }
 }
 
 void MainWindow::PlayScanSound()
