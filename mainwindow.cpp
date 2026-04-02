@@ -232,6 +232,25 @@ void MainWindow::on_SendAllButton_clicked()
     });
 }
 
+bool MainWindow::SendBarcodeString(QString sBarcode)
+{
+    if (sBarcode.isEmpty()) {
+        return false;
+    }
+    if (!m_pStringSender->SendString(&sBarcode)) {
+        qDebug() << "unable to send string " << sBarcode;
+        return false;
+    }
+    if (ui->SendReturnCheckBox->isChecked()) {
+        if (!m_pStringSender->SendReturn()) {
+            qDebug() << "unable to send Return " << sBarcode;
+            return false;
+        }
+    }
+    PlayScanSound();
+    return true;
+}
+
 bool MainWindow::SendBarcodeByIterator(int nIt)
 {
     QString sCurBarcode = m_aBarcodes.at(nIt);
@@ -239,22 +258,12 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
         qDebug() << "m_aBarcodes.at(" + QString::number(nIt) + ") is empty";
         return false;
     }
-    
-    // Send the barcode immediately
 
-    if(!m_pStringSender->SendString(&sCurBarcode)) {
-        qDebug() << "unable to send string " << sCurBarcode;
+    if (!SendBarcodeString(sCurBarcode)) {
         return false;
     }
-    if(ui->SendReturnCheckBox->isChecked()) {
-        if(!m_pStringSender->SendReturn()) {
-            qDebug() << "unable to send Return " << sCurBarcode;
-            return false;
-        }
-    }
-    
+
     qDebug() << "Sent barcode at index " << nIt << ": " << sCurBarcode;
-    PlayScanSound();
     
     // Check if this is the last barcode
     if(nIt == m_aBarcodes.size() - 1) {
@@ -349,6 +358,27 @@ void MainWindow::sendNextBarcode()
     }
 }
 
+
+void MainWindow::on_SendSelectionButton_clicked()
+{
+    QString sSel = ui->BarcodesMemo->textCursor().selectedText();
+    sSel.replace(QChar(0x2029), QLatin1Char('\n'));
+    sSel = sSel.trimmed();
+    if (sSel.contains(QLatin1Char('\n'))) {
+        const QStringList parts = sSel.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+        sSel = parts.isEmpty() ? QString() : parts.first().trimmed();
+    }
+    if (sSel.isEmpty()) {
+        QMessageBox::warning(this, tr("Warning"), tr("Select a barcode in the list (highlight text)."));
+        return;
+    }
+
+    QTimer::singleShot(ui->TimeoutSlider->value() * 1000, this, [this, sSel]() {
+        if (!SendBarcodeString(sSel)) {
+            QMessageBox::warning(this, tr("Error"), tr("Failed to send the selection."));
+        }
+    });
+}
 
 void MainWindow::on_SendNextButton_clicked()
 {

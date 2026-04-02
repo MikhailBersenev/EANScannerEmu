@@ -78,6 +78,21 @@ QPushButton#SendNextButton:pressed {
     background-color: #2E7D32;
 }
 
+/* Selection send */
+QPushButton#SendSelectionButton {
+    background-color: #2196F3;
+    color: #FFFFFF;
+    border: none;
+}
+
+QPushButton#SendSelectionButton:hover {
+    background-color: #1976D2;
+}
+
+QPushButton#SendSelectionButton:pressed {
+    background-color: #1565C0;
+}
+
 /* Purple Button - Send Previous */
 QPushButton#SendPreviousButton {
     background-color: #9C27B0;

@@ -43,6 +43,8 @@ private slots:
     
     void on_SendPreviousButton_clicked();
 
+    void on_SendSelectionButton_clicked();
+
     void on_StopButton_clicked();
 
     void on_WebsiteButton_clicked();
@@ -53,11 +55,13 @@ private:
     unsigned int m_nIterator;
     CStringSender* m_pStringSender;
     bool SendBarcodeByIterator(int nIt);
+    bool SendBarcodeString(QString sBarcode);
     void ShowWaylandWarningMessage();
     void PlayScanSound();
     void PlayScanSoundAlternative(); // Альтернативная функция с QSoundEffect
     void TestSoundResources(); // Добавляем тестовую функцию
     void LoadBarcodesFromFile(); // Загрузка штрихкодов из файла
+
     
     // Timer-related members
     QTimer* m_pSendTimer;
