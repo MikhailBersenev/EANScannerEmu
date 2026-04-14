@@ -3,7 +3,6 @@
 #ifdef Q_OS_MACOS
 
 #include <QThread>
-#include <QDebug>
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <Carbon/Carbon.h>
@@ -16,7 +15,9 @@ bool CStringSenderMac::SendUnicodeChar(ushort uCode, bool bKeyDown)
 {
     CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
     if (!source) {
-        qDebug() << "CStringSenderMac: CGEventSourceCreate failed";
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("CStringSenderMac: CGEventSourceCreate failed");
+        }
         return false;
     }
 
@@ -39,7 +40,9 @@ bool CStringSenderMac::SendUnicodeChar(ushort uCode, bool bKeyDown)
 bool CStringSenderMac::SendString(QString *pString)
 {
     if (!pString) {
-        qDebug() << "CStringSenderMac::SendString: pString is null";
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("CStringSenderMac::SendString: pString is null");
+        }
         return false;
     }
 
@@ -58,7 +61,9 @@ bool CStringSenderMac::SendReturn()
 {
     CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
     if (!source) {
-        qDebug() << "CStringSenderMac: CGEventSourceCreate failed";
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("CStringSenderMac: CGEventSourceCreate failed");
+        }
         return false;
     }
 

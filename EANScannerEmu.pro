@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    cinfomessagehandler.cpp \
     cstringsender.cpp \
     cstringsenderlinuxwayland.cpp \
     cstringsenderlinuxx11.cpp \
@@ -20,6 +21,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    cinfomessagehandler.h \
     cstringsender.h \
     cstringsenderlinuxwayland.h \
     cstringsenderlinuxx11.h \

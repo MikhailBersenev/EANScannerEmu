@@ -2,7 +2,6 @@
 #include <QApplication>
 #include <QProcess>
 #include <QClipboard>
-#include <QDebug>
 #include <QThread>
 
 CStringSenderLinuxWayland::CStringSenderLinuxWayland(QObject *parent)
@@ -12,37 +11,55 @@ CStringSenderLinuxWayland::CStringSenderLinuxWayland(QObject *parent)
 bool CStringSenderLinuxWayland::SendString(QString* pString)
 {
     if(pString->isEmpty()) {
-        qDebug() << "CStringSenderLinuxWayland::SendString - given string is empty";
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("CStringSenderLinuxWayland::SendString - given string is empty");
+        }
         return false;
     }
-    qDebug() << "Attempting to send text: \"" + *pString + "\"";
+    if (!m_InfoMessageHandler.isNull()) {
+        m_InfoMessageHandler->InfoMessage("Attempting to send text: \"" + *pString + "\"");
+    }
     
     // Try to send text normally first
     if(QProcess::execute("ydotool type \"" + *pString + "\"") == 0) {
-        qDebug() << "Successfully sent string via ydotool:" << *pString;
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("Successfully sent string via ydotool: " + *pString);
+        }
         return true;
     } else {
-        qDebug() << "Unable to send string via ydotool";
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("Unable to send string via ydotool");
+        }
     }
 
     // Method 2: Fallback - copy to clipboard
-    qDebug() << "All methods failed, copying to clipboard only";
+    if (!m_InfoMessageHandler.isNull()) {
+        m_InfoMessageHandler->InfoMessage("All methods failed, copying to clipboard only");
+    }
     QClipboard *pClipboard = QApplication::clipboard();
     pClipboard->setText(*pString);
-    qDebug() << "String copied to clipboard:" << *pString;
+    if (!m_InfoMessageHandler.isNull()) {
+        m_InfoMessageHandler->InfoMessage("String copied to clipboard: " + *pString);
+    }
 
     return false;
 }
 
 bool CStringSenderLinuxWayland::SendReturn()
 {
-    qDebug() << "Attempting to send Return key...";
+    if (!m_InfoMessageHandler.isNull()) {
+        m_InfoMessageHandler->InfoMessage("Attempting to send Return key...");
+    }
     if(QProcess::execute("which ydotool") == 0) {
         if(QProcess::execute("ydotool key 28") == 0) {
-            qDebug() << "Successfully sent Return key via ydotool";
+            if (!m_InfoMessageHandler.isNull()) {
+                m_InfoMessageHandler->InfoMessage("Successfully sent Return key via ydotool");
+            }
             return true;
         }
     }
-    qDebug() << "Failed to send Return key via any method";
+    if (!m_InfoMessageHandler.isNull()) {
+        m_InfoMessageHandler->InfoMessage("Failed to send Return key via any method");
+    }
     return false;
 }

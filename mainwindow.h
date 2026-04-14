@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include "cstringsender.h"
+#include "cinfomessagehandler.h"
 #include <QMainWindow>
 #include <QTimer>
 #include <QMediaPlayer>
@@ -8,6 +9,7 @@
 #include <QFileInfo>
 #include <QResource>
 #include <QSoundEffect>
+#include <QSharedPointer>
 
 
 QT_BEGIN_NAMESPACE
@@ -49,6 +51,8 @@ private slots:
 
     void on_WebsiteButton_clicked();
 
+    void on_MessagesCheckBox_checkStateChanged(const Qt::CheckState &arg1);
+
 private:
     Ui::MainWindow *ui;
     QStringList m_aBarcodes;
@@ -61,6 +65,7 @@ private:
     void PlayScanSoundAlternative(); // Альтернативная функция с QSoundEffect
     void TestSoundResources(); // Добавляем тестовую функцию
     void LoadBarcodesFromFile(); // Загрузка штрихкодов из файла
+    QSharedPointer <CInfoMessageHandler> m_InfoMessageHandler;
 
     
     // Timer-related members

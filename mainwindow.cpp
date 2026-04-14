@@ -30,13 +30,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->TimeoutSlider->setSliderPosition(10);
     this->setWindowTitle(this->windowTitle() + " ver. " + CUtils::GetVersion());
     ui->SendReturnCheckBox->setChecked(true);
+    m_InfoMessageHandler = QSharedPointer<CInfoMessageHandler>::create(nullptr, ui->MessagesCheckBox->isChecked());
     // На macOS PNG отображается корректнее, чем .ico (док, заголовок окна)
 #if defined(Q_OS_MACOS)
     setWindowIcon(QIcon(":/icon.png"));
 #else
     setWindowIcon(QIcon(":/icon.ico"));
 #endif
-    qDebug() << "EANScannerEmu ver." << CUtils::GetVersion();
+    m_InfoMessageHandler->InfoMessage(QString("EANScannerEmu ver. %1").arg(CUtils::GetVersion()));
     m_pStringSender = nullptr;
     m_pSendTimer = nullptr;
     m_nCurrentBarcodeIndex = 0;
@@ -47,11 +48,11 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef Q_OS_LINUX
     QString sDisplayServer = QGuiApplication::platformName();
     if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
-        qDebug() << "Display Server Wayland";
+        m_InfoMessageHandler->InfoMessage("Display Server Wayland");
         m_pStringSender = new CStringSenderLinuxWayland(this);
         ShowWaylandWarningMessage();
     } else if (sDisplayServer.contains("xcb", Qt::CaseInsensitive)) {
-        qDebug() << "Display Server X11";
+        m_InfoMessageHandler->InfoMessage("Display Server X11");
         m_pStringSender = new CStringSenderLinuxX11(this);
         QSettings settings("Mikhail Bersenev", "EANScammerEmu", this);
         if(settings.contains("waylandMessage")) {
@@ -71,6 +72,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_pStringSender = new CStringSenderMac(this);
 #endif
 
+    if (m_pStringSender) {
+        m_pStringSender->SetInfoMessageHandler(m_InfoMessageHandler);
+    }
+
 }
 
 MainWindow::~MainWindow()
@@ -86,7 +91,7 @@ void MainWindow::LoadBarcodesFromFile()
     QFile file(sBarcodesFileName);
     
     if (!file.exists()) {
-        qDebug() << "Barcodes file not found:" << sBarcodesFileName;
+        m_InfoMessageHandler->InfoMessage(QString("Barcodes file not found: %1").arg(sBarcodesFileName));
         return;
     }
     
@@ -103,10 +108,10 @@ void MainWindow::LoadBarcodesFromFile()
             m_aBarcodes = strText.split('\n', Qt::SkipEmptyParts);
             m_nCurrentBarcodeIndex = 0;
             
-            qDebug() << "Loaded" << m_aBarcodes.size() << "barcodes from" << sBarcodesFileName;
+            m_InfoMessageHandler->InfoMessage(QString("Loaded %1 barcodes from %2").arg(m_aBarcodes.size()).arg(sBarcodesFileName));
         }
     } else {
-        qDebug() << "Failed to open barcodes file:" << file.errorString();
+        m_InfoMessageHandler->InfoMessage(QString("Failed to open barcodes file: %1").arg(file.errorString()));
     }
 }
 
@@ -120,9 +125,9 @@ void MainWindow::on_CleanButton_clicked()
     const QString sBarcodesFileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/barcodes.txt";
     if (QFile::exists(sBarcodesFileName)) {
         if (QFile::remove(sBarcodesFileName)) {
-            qDebug() << "Barcodes file deleted:" << sBarcodesFileName;
+            m_InfoMessageHandler->InfoMessage(QString("Barcodes file deleted: %1").arg(sBarcodesFileName));
         } else {
-            qDebug() << "Failed to delete barcodes file:" << sBarcodesFileName;
+            m_InfoMessageHandler->InfoMessage(QString("Failed to delete barcodes file: %1").arg(sBarcodesFileName));
         }
     }
 
@@ -193,9 +198,9 @@ void MainWindow::on_ReadButton_clicked()
             out << barcode << "\n";
         }
         file.close();
-        qDebug() << "Barcodes saved to" << sBarcodesFileName;
+        m_InfoMessageHandler->InfoMessage(QString("Barcodes saved to %1").arg(sBarcodesFileName));
     } else {
-        qDebug() << "Failed to save barcodes to file:" << file.errorString();
+        m_InfoMessageHandler->InfoMessage(QString("Failed to save barcodes to file: %1").arg(file.errorString()));
         QMessageBox::warning(this, "Warning", "Failed to save barcodes to file: " + file.errorString());
     }
     
@@ -206,7 +211,7 @@ void MainWindow::on_ReadButton_clicked()
 
 void MainWindow::on_SendAllButton_clicked()
 {
-    qDebug() << "MainWindow::on_SendAllButton_clicked()";
+    m_InfoMessageHandler->InfoMessage("MainWindow::on_SendAllButton_clicked()");
     if(m_aBarcodes.isEmpty()) {
         QMessageBox::warning(this, "Warning", "No barcodes to send");
         return;
@@ -238,12 +243,12 @@ bool MainWindow::SendBarcodeString(QString sBarcode)
         return false;
     }
     if (!m_pStringSender->SendString(&sBarcode)) {
-        qDebug() << "unable to send string " << sBarcode;
+        m_InfoMessageHandler->InfoMessage(QString("unable to send string %1").arg(sBarcode));
         return false;
     }
     if (ui->SendReturnCheckBox->isChecked()) {
         if (!m_pStringSender->SendReturn()) {
-            qDebug() << "unable to send Return " << sBarcode;
+            m_InfoMessageHandler->InfoMessage(QString("unable to send Return %1").arg(sBarcode));
             return false;
         }
     }
@@ -255,7 +260,7 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
 {
     QString sCurBarcode = m_aBarcodes.at(nIt);
     if(sCurBarcode.isEmpty()) {
-        qDebug() << "m_aBarcodes.at(" + QString::number(nIt) + ") is empty";
+        m_InfoMessageHandler->InfoMessage("m_aBarcodes.at(" + QString::number(nIt) + ") is empty");
         return false;
     }
 
@@ -263,12 +268,12 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
         return false;
     }
 
-    qDebug() << "Sent barcode at index " << nIt << ": " << sCurBarcode;
+    m_InfoMessageHandler->InfoMessage(QString("Sent barcode at index %1: %2").arg(nIt).arg(sCurBarcode));
     
     // Check if this is the last barcode
     if(nIt == m_aBarcodes.size() - 1) {
         // All barcodes sent
-        qDebug() << "All barcodes sent successfully!";
+        m_InfoMessageHandler->InfoMessage("All barcodes sent successfully!");
         // Clean up timer
         if(m_pSendTimer) {
             m_pSendTimer->deleteLater();
@@ -280,8 +285,8 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
     // Schedule next barcode with timer
     if(m_pSendTimer) {
         int timeoutSeconds = ui->TimeoutSlider->value();
-        qDebug() << "Scheduling next barcode in" << timeoutSeconds << "seconds";
-        if(ui->MessagesCheckBox->isChecked()) {
+        m_InfoMessageHandler->InfoMessage(QString("Scheduling next barcode in %1 seconds").arg(timeoutSeconds));
+        if (m_InfoMessageHandler->GetMode()) {
             // Show progress message
             QMessageBox::information(this, "Progress",
                                      QString("Barcode %1 of %2 sent! You have %3 seconds to switch windows.\n"
@@ -300,8 +305,7 @@ void MainWindow::ShowWaylandWarningMessage()
 {
     QSettings settings("Mikhail Bersenev", "EANScammerEmu", this);
     if(!settings.contains("waylandMessage")) {
-        QMessageBox::warning(this, "Wayland Session Detected",
-                             "EANScannerEmu works best in an X.Org session. Unfortunately, Wayland currently restricts keyboard emulation and may cause some features to malfunction.\n\nPlease log out and select 'X.Org' or 'X11' when choosing your session type.");
+        m_InfoMessageHandler->InfoMessage("EANScannerEmu works best in an X.Org session. Unfortunately, Wayland currently restricts keyboard emulation and may cause some features to malfunction.\n\nPlease log out and select 'X.Org' or 'X11' when choosing your session type.");
         settings.setValue("waylandMessage", "1");
     }
 }
@@ -338,7 +342,7 @@ void MainWindow::PlayScanSound()
 void MainWindow::sendNextBarcode()
 {
     if(m_nCurrentBarcodeIndex < m_aBarcodes.size()) {
-        qDebug() << "Sending barcode" << m_nCurrentBarcodeIndex + 1 << "of" << m_aBarcodes.size();
+        m_InfoMessageHandler->InfoMessage(QString("Sending barcode %1 of %2").arg(m_nCurrentBarcodeIndex + 1).arg(m_aBarcodes.size()));
         if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
             m_nCurrentBarcodeIndex++;
             // Start timer for next barcode if there are more
@@ -346,7 +350,7 @@ void MainWindow::sendNextBarcode()
                 m_pSendTimer->start();
             }
         } else {
-            qDebug() << "Failed to send barcode at index" << m_nCurrentBarcodeIndex;
+            m_InfoMessageHandler->InfoMessage(QString("Failed to send barcode at index %1").arg(m_nCurrentBarcodeIndex));
             QMessageBox::warning(this, "Error", "Failed to send barcode at index " + QString::number(m_nCurrentBarcodeIndex));
 
             // Clean up timer on error
@@ -382,7 +386,7 @@ void MainWindow::on_SendSelectionButton_clicked()
 
 void MainWindow::on_SendNextButton_clicked()
 {
-    qDebug() << "MainWindow::on_SendNextButton_clicked()";
+    m_InfoMessageHandler->InfoMessage("MainWindow::on_SendNextButton_clicked()");
     
     if(m_aBarcodes.isEmpty()) {
         QMessageBox::warning(this, "Warning", "No barcodes loaded");
@@ -392,7 +396,7 @@ void MainWindow::on_SendNextButton_clicked()
     // If no current index is set, start from beginning
     if(m_nCurrentBarcodeIndex >= m_aBarcodes.size()) {
         m_nCurrentBarcodeIndex = 0;
-        qDebug() << "Resetting to first barcode";
+        m_InfoMessageHandler->InfoMessage("Resetting to first barcode");
     }
     // Send current barcode
     QTimer::singleShot(ui->TimeoutSlider->value() * 1000, this, [this]() {
@@ -401,7 +405,7 @@ void MainWindow::on_SendNextButton_clicked()
 
             // Show progress
             if(m_nCurrentBarcodeIndex < m_aBarcodes.size()) {
-                if(ui->MessagesCheckBox->isChecked()) {
+                if (m_InfoMessageHandler->GetMode()) {
                     QMessageBox::information(this, "Progress",
                                              QString("Barcode %1 of %2 sent successfully!\n"
                                                      "Click 'Send Next' again to send the next barcode.").arg(m_nCurrentBarcodeIndex).arg(m_aBarcodes.size()));
@@ -420,7 +424,7 @@ void MainWindow::on_SendNextButton_clicked()
 
 void MainWindow::on_SendPreviousButton_clicked()
 {
-    qDebug() << "MainWindow::on_SendPreviousButton_clicked()";
+    m_InfoMessageHandler->InfoMessage("MainWindow::on_SendPreviousButton_clicked()");
     
     if(m_aBarcodes.isEmpty()) {
         QMessageBox::warning(this, "Warning", "No barcodes loaded");
@@ -433,13 +437,13 @@ void MainWindow::on_SendPreviousButton_clicked()
     // If we went below 0, wrap around to the last barcode
     if(m_nCurrentBarcodeIndex < 0) {
         m_nCurrentBarcodeIndex = m_aBarcodes.size() - 1;
-        qDebug() << "Wrapped around to last barcode";
+        m_InfoMessageHandler->InfoMessage("Wrapped around to last barcode");
     }
     // Send the previous barcode
     QTimer::singleShot(ui->TimeoutSlider->value() * 1000, this, [this]() {
         if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
             // Show progress
-            if(ui->MessagesCheckBox->isChecked()) {
+            if (m_InfoMessageHandler->GetMode()) {
                 QMessageBox::information(this, "Progress",
                                          QString("Previous barcode %1 of %2 sent successfully!\n"
                                                  "Current position: %3").arg(m_nCurrentBarcodeIndex + 1).arg(m_aBarcodes.size()).arg(m_nCurrentBarcodeIndex + 1));
@@ -455,18 +459,18 @@ void MainWindow::on_SendPreviousButton_clicked()
 
 void MainWindow::on_StopButton_clicked()
 {
-    qDebug() << "MainWindow::on_StopButton_clicked()";
+    m_InfoMessageHandler->InfoMessage("MainWindow::on_StopButton_clicked()");
     
     // Stop the timer if it's running
     if(m_pSendTimer && m_pSendTimer->isActive()) {
-        qDebug() << "Stopping send timer...";
+        m_InfoMessageHandler->InfoMessage("Stopping send timer...");
         m_pSendTimer->stop();
         m_pSendTimer->deleteLater();
         m_pSendTimer = nullptr;
         
         QMessageBox::information(this, "Stopped", "Sending process has been stopped.");
     } else {
-        qDebug() << "No active timer to stop";
+        m_InfoMessageHandler->InfoMessage("No active timer to stop");
         QMessageBox::information(this, "Info", "No active sending process to stop.");
     }
     
@@ -479,3 +483,16 @@ void MainWindow::on_WebsiteButton_clicked()
 {
     QDesktopServices::openUrl(QUrl::fromUserInput("http://mbersenev.ph/"));
 }
+
+void MainWindow::on_MessagesCheckBox_checkStateChanged(const Qt::CheckState &arg1)
+{
+    if (m_InfoMessageHandler.isNull()) {
+        return;
+    }
+
+    const bool bShouldShowMessages = (arg1 == Qt::Checked);
+    if (bShouldShowMessages != m_InfoMessageHandler->GetMode()) {
+        m_InfoMessageHandler->SetMode(bShouldShowMessages);
+    }
+}
+

@@ -1,11 +1,10 @@
 #include "cstringsenderlinuxx11.h"
 #ifdef Q_OS_LINUX
-#include <QDebug>
 #include <QProcess>
 #include <QThread>
 
 namespace {
-bool SendStringViaXdotool(const QString &text)
+bool SendStringViaXdotool(const QString &text, const QSharedPointer<CInfoMessageHandler> &pInfoMessageHandler)
 {
     if (text.isEmpty()) {
         return false;
@@ -13,23 +12,31 @@ bool SendStringViaXdotool(const QString &text)
 
     const int exitCode = QProcess::execute("xdotool", {"type", "--delay", "3", "--clearmodifiers", text});
     if (exitCode != 0) {
-        qDebug() << "Unable to send string via xdotool. Exit code:" << exitCode;
+        if (!pInfoMessageHandler.isNull()) {
+            pInfoMessageHandler->InfoMessage(QString("Unable to send string via xdotool. Exit code: %1").arg(exitCode));
+        }
         return false;
     }
 
-    qDebug() << "Successfully sent string via xdotool fallback";
+    if (!pInfoMessageHandler.isNull()) {
+        pInfoMessageHandler->InfoMessage("Successfully sent string via xdotool fallback");
+    }
     return true;
 }
 
-bool SendReturnViaXdotool()
+bool SendReturnViaXdotool(const QSharedPointer<CInfoMessageHandler> &pInfoMessageHandler)
 {
     const int exitCode = QProcess::execute("xdotool", {"key", "--clearmodifiers", "Return"});
     if (exitCode != 0) {
-        qDebug() << "Unable to send Return via xdotool. Exit code:" << exitCode;
+        if (!pInfoMessageHandler.isNull()) {
+            pInfoMessageHandler->InfoMessage(QString("Unable to send Return via xdotool. Exit code: %1").arg(exitCode));
+        }
         return false;
     }
 
-    qDebug() << "Successfully sent Return via xdotool fallback";
+    if (!pInfoMessageHandler.isNull()) {
+        pInfoMessageHandler->InfoMessage("Successfully sent Return via xdotool fallback");
+    }
     return true;
 }
 }
@@ -43,22 +50,30 @@ CStringSenderLinuxX11::CStringSenderLinuxX11(QObject *parent)
 bool CStringSenderLinuxX11::SendString(QString *pString)
 {
     if(!pString) {
-        qDebug() << "CStringSenderLinuxX11::SendString(QString *pString) pString is null";
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("CStringSenderLinuxX11::SendString(QString *pString) pString is null");
+        }
         return false;
     }
     if (!m_pDisplay) {
-        qDebug() << "X11 display is not available, trying xdotool fallback";
-        return SendStringViaXdotool(*pString);
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("X11 display is not available, trying xdotool fallback");
+        }
+        return SendStringViaXdotool(*pString, m_InfoMessageHandler);
     }
 
     for(int i = 0; i < pString->length(); i++) {
         if (!SendUnicodeChar(pString->at(i).unicode(), true)) {
-            qDebug() << "X11 API failed to send character, trying xdotool fallback";
-            return SendStringViaXdotool(*pString);
+            if (!m_InfoMessageHandler.isNull()) {
+                m_InfoMessageHandler->InfoMessage("X11 API failed to send character, trying xdotool fallback");
+            }
+            return SendStringViaXdotool(*pString, m_InfoMessageHandler);
         }
         if (!SendUnicodeChar(pString->at(i).unicode(), false)) {
-            qDebug() << "X11 API failed to release character, trying xdotool fallback";
-            return SendStringViaXdotool(*pString);
+            if (!m_InfoMessageHandler.isNull()) {
+                m_InfoMessageHandler->InfoMessage("X11 API failed to release character, trying xdotool fallback");
+            }
+            return SendStringViaXdotool(*pString, m_InfoMessageHandler);
         }
         QThread::msleep(3);
     }
@@ -69,17 +84,23 @@ bool CStringSenderLinuxX11::SendString(QString *pString)
 bool CStringSenderLinuxX11::SendReturn()
 {
     if (!m_pDisplay) {
-        qDebug() << "X11 display is not available, trying xdotool fallback for Return";
-        return SendReturnViaXdotool();
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("X11 display is not available, trying xdotool fallback for Return");
+        }
+        return SendReturnViaXdotool(m_InfoMessageHandler);
     }
 
     if (!SendUnicodeChar(XK_Return, true)) {
-        qDebug() << "X11 API failed to send Return, trying xdotool fallback";
-        return SendReturnViaXdotool();
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("X11 API failed to send Return, trying xdotool fallback");
+        }
+        return SendReturnViaXdotool(m_InfoMessageHandler);
     }
     if (!SendUnicodeChar(XK_Return, false)) {
-        qDebug() << "X11 API failed to release Return, trying xdotool fallback";
-        return SendReturnViaXdotool();
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("X11 API failed to release Return, trying xdotool fallback");
+        }
+        return SendReturnViaXdotool(m_InfoMessageHandler);
     }
     XFlush(m_pDisplay);
     return true;
@@ -108,7 +129,9 @@ bool CStringSenderLinuxX11::SendUnicodeChar(qint32 uCode, bool bRelease)
         return false;
     }
     if(!XTestFakeKeyEvent(m_pDisplay, keyCode, bRelease, CurrentTime)) {
-        qDebug() << "Unable to send XTestFakeKeyEvent";
+        if (!m_InfoMessageHandler.isNull()) {
+            m_InfoMessageHandler->InfoMessage("Unable to send XTestFakeKeyEvent");
+        }
         return false;
     }
     XFlush(m_pDisplay);
