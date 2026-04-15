@@ -305,7 +305,13 @@ void MainWindow::ShowWaylandWarningMessage()
 {
     QSettings settings("Mikhail Bersenev", "EANScammerEmu", this);
     if(!settings.contains("waylandMessage")) {
-        m_InfoMessageHandler->InfoMessage("EANScannerEmu works best in an X.Org session. Unfortunately, Wayland currently restricts keyboard emulation and may cause some features to malfunction.\n\nPlease log out and select 'X.Org' or 'X11' when choosing your session type.");
+        m_InfoMessageHandler->InfoMessage(
+            "Wayland mode detected.\n\n"
+            "Keyboard emulation works through ydotool. Please make sure:\n"
+            "1) ydotool is installed and доступен in PATH\n"
+            "2) ydotoold daemon is running\n"
+            "3) your user has permission to access /dev/uinput\n\n"
+            "If input still does not work in your compositor, try an X11 session as fallback.");
         settings.setValue("waylandMessage", "1");
     }
 }
