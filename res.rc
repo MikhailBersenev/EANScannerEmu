@@ -1,7 +1,7 @@
 IDI_ICON1 ICON "icon.ico"
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION 1,2,0,0
+ PRODUCTVERSION 1,2,0,0
  FILEFLAGSMASK 0x3fL
  FILEFLAGS 0x0L
  FILEOS 0x40004L
@@ -14,12 +14,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName",      "Mikhail Bersenev\0"
             VALUE "FileDescription",  "Barcode scanner emulator\0"
-            VALUE "FileVersion",      "1.0.0.0\0"
+            VALUE "FileVersion",      "1.2.0.0\0"
             VALUE "ProductName",      "EANScannerEmu\0"
-            VALUE "ProductVersion",   "1.0.0.0\0"
+            VALUE "ProductVersion",   "1.2.0.0\0"
             VALUE "OriginalFilename", "EANScannerEmu.exe\0"
             VALUE "InternalName",     "EANScannerEmu\0"
-            VALUE "LegalCopyright",   "© 2025 Mikhail Bersenev\0"
+            VALUE "LegalCopyright",   "© 2026 Mikhail Bersenev\0"
         END
     END
     BLOCK "VarFileInfo"
