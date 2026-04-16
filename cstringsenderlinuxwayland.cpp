@@ -1,4 +1,5 @@
 #include "cstringsenderlinuxwayland.h"
+#ifdef Q_OS_LINUX
 #include <QApplication>
 #include <QProcess>
 #include <QClipboard>
@@ -143,3 +144,4 @@ bool CStringSenderLinuxWayland::SendReturn()
     }
     return false;
 }
+#endif

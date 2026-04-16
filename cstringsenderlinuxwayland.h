@@ -1,5 +1,6 @@
 #ifndef CSTRINGSENDERLINUXWAYLAND_H
 #define CSTRINGSENDERLINUXWAYLAND_H
+#ifdef Q_OS_LINUX
 
 #include "cstringsender.h"
 
@@ -12,4 +13,5 @@ public:
 
 };
 
+#endif
 #endif // CSTRINGSENDERLINUXWAYLAND_H
