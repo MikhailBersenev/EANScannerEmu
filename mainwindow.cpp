@@ -305,7 +305,7 @@ void MainWindow::ShowWaylandWarningMessage()
 {
     QSettings settings("Mikhail Bersenev", "EANScammerEmu", this);
     if(!settings.contains("waylandMessage")) {
-        m_InfoMessageHandler->InfoMessage(
+        QMessageBox::warning(this, "Warning",
             "Wayland mode detected.\n\n"
             "Keyboard emulation works through ydotool. Please make sure:\n"
             "1) ydotool is installed and доступен in PATH\n"
