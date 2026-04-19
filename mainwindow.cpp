@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "generatedialog.h"
 #include "cutils.h"
+#include "cappsettings.h"
 
 #include "cstringsenderlinuxwayland.h"
 #include "cstringsenderlinuxx11.h"
@@ -19,7 +20,7 @@
 #include <QTemporaryFile>
 #include <QTextStream>
 #include <QStandardPaths>
-#include <QSettings>
+#include <QtGlobal>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -27,9 +28,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->TimeoutSlider->setSliderPosition(10);
+    {
+        CAppSettings settings(this);
+        const int saved = settings.timeoutSeconds();
+        ui->TimeoutSlider->setValue(qBound(ui->TimeoutSlider->minimum(), saved,
+                                           ui->TimeoutSlider->maximum()));
+        ui->MessagesCheckBox->setChecked(settings.showInfoMessages());
+        ui->SendReturnCheckBox->setChecked(settings.sendReturnAfterBarcode());
+    }
     this->setWindowTitle(this->windowTitle() + " ver. " + CUtils::GetVersion());
-    ui->SendReturnCheckBox->setChecked(true);
     m_InfoMessageHandler = QSharedPointer<CInfoMessageHandler>::create(nullptr, ui->MessagesCheckBox->isChecked());
     // На macOS PNG отображается корректнее, чем .ico (док, заголовок окна)
 #if defined(Q_OS_MACOS)
@@ -54,10 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
     } else if (sDisplayServer.contains("xcb", Qt::CaseInsensitive)) {
         m_InfoMessageHandler->InfoMessage("Display Server X11");
         m_pStringSender = new CStringSenderLinuxX11(this);
-        QSettings settings("Mikhail Bersenev", "EANScammerEmu", this);
-        if(settings.contains("waylandMessage")) {
-            settings.remove("waylandMessage");
-        }
+        CAppSettings appSettings(this);
+        appSettings.removeWaylandMessageIfPresent();
     }
     else {
         QMessageBox::critical(this, "Error", "Unknown display server");
@@ -303,8 +308,8 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
 
 void MainWindow::ShowWaylandWarningMessage()
 {
-    QSettings settings("Mikhail Bersenev", "EANScammerEmu", this);
-    if(!settings.contains("waylandMessage")) {
+    CAppSettings settings(this);
+    if (!settings.hasAcknowledgedWaylandMessage()) {
         m_InfoMessageHandler->InfoMessage(
             "Wayland mode detected.\n\n"
             "Keyboard emulation works through ydotool. Please make sure:\n"
@@ -312,7 +317,7 @@ void MainWindow::ShowWaylandWarningMessage()
             "2) ydotoold daemon is running\n"
             "3) your user has permission to access /dev/uinput\n\n"
             "If input still does not work in your compositor, try an X11 session as fallback.");
-        settings.setValue("waylandMessage", "1");
+        settings.acknowledgeWaylandMessage();
     }
 }
 
@@ -492,13 +497,28 @@ void MainWindow::on_WebsiteButton_clicked()
 
 void MainWindow::on_MessagesCheckBox_checkStateChanged(const Qt::CheckState &arg1)
 {
+    const bool bShouldShowMessages = (arg1 == Qt::Checked);
+    CAppSettings settings(this);
+    settings.setShowInfoMessages(bShouldShowMessages);
+
     if (m_InfoMessageHandler.isNull()) {
         return;
     }
 
-    const bool bShouldShowMessages = (arg1 == Qt::Checked);
     if (bShouldShowMessages != m_InfoMessageHandler->GetMode()) {
         m_InfoMessageHandler->SetMode(bShouldShowMessages);
     }
+}
+
+void MainWindow::on_SendReturnCheckBox_checkStateChanged(const Qt::CheckState &arg1)
+{
+    CAppSettings settings(this);
+    settings.setSendReturnAfterBarcode(arg1 == Qt::Checked);
+}
+
+void MainWindow::on_TimeoutSlider_valueChanged(int value)
+{
+    CAppSettings settings(this);
+    settings.setTimeoutSeconds(value);
 }
 

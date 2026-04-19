@@ -53,6 +53,10 @@ private slots:
 
     void on_MessagesCheckBox_checkStateChanged(const Qt::CheckState &arg1);
 
+    void on_SendReturnCheckBox_checkStateChanged(const Qt::CheckState &arg1);
+
+    void on_TimeoutSlider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
     QStringList m_aBarcodes;
