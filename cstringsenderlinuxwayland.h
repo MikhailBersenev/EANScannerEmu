@@ -1,5 +1,7 @@
 #ifndef CSTRINGSENDERLINUXWAYLAND_H
 #define CSTRINGSENDERLINUXWAYLAND_H
+
+#include <QtGlobal>
 #ifdef Q_OS_LINUX
 
 #include "cstringsender.h"

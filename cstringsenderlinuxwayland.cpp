@@ -1,4 +1,6 @@
 #include "cstringsenderlinuxwayland.h"
+
+#include <QtGlobal>
 #ifdef Q_OS_LINUX
 #include <QApplication>
 #include <QProcess>
