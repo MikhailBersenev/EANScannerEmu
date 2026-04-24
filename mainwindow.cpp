@@ -45,8 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowIcon(QIcon(":/icon.ico"));
 #endif
     m_InfoMessageHandler->InfoMessage(QString("EANScannerEmu ver. %1").arg(CUtils::GetVersion()));
-    m_pStringSender = nullptr;
-    m_pSendTimer = nullptr;
     m_nCurrentBarcodeIndex = 0;
     
     // Загрузка штрихкодов из файла при запуске
@@ -56,11 +54,11 @@ MainWindow::MainWindow(QWidget *parent)
     QString sDisplayServer = QGuiApplication::platformName();
     if (sDisplayServer.contains("wayland", Qt::CaseInsensitive)) {
         m_InfoMessageHandler->InfoMessage("Display Server Wayland");
-        m_pStringSender = new CStringSenderLinuxWayland(this);
+        m_pStringSender.reset(new CStringSenderLinuxWayland(this));
         ShowWaylandWarningMessage();
     } else if (sDisplayServer.contains("xcb", Qt::CaseInsensitive)) {
         m_InfoMessageHandler->InfoMessage("Display Server X11");
-        m_pStringSender = new CStringSenderLinuxX11(this);
+        m_pStringSender.reset(new CStringSenderLinuxX11(this));
         CAppSettings appSettings(this);
         appSettings.removeWaylandMessageIfPresent();
     }
@@ -71,10 +69,10 @@ MainWindow::MainWindow(QWidget *parent)
     }
 #endif
 #ifdef Q_OS_WIN
-    m_pStringSender = new CStringSenderWin32(this);
+    m_pStringSender.reset(new CStringSenderWin32(this));
 #endif
 #ifdef Q_OS_MACOS
-    m_pStringSender = new CStringSenderMac(this);
+    m_pStringSender.reset(new CStringSenderMac(this));
 #endif
 
     if (m_pStringSender) {
@@ -85,9 +83,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    if(m_pStringSender)
-        delete m_pStringSender;
-    delete ui;
 }
 
 void MainWindow::LoadBarcodesFromFile()
@@ -141,12 +136,11 @@ void MainWindow::on_CleanButton_clicked()
 
 void MainWindow::on_GenerateButton_clicked()
 {
-    GenerateDialog* pGenerateDialog = new GenerateDialog(this);
+    QScopedPointer<GenerateDialog> pGenerateDialog(new GenerateDialog(this));
     pGenerateDialog->exec();
     const int nQnt = pGenerateDialog->GetQuantity();
     GenerateDialog::Type nType = pGenerateDialog->GetType();
     QString sPrefix = pGenerateDialog->GetPrefix();
-    delete pGenerateDialog;
     QStringList aGeneratedItems;
     switch (nType) {
     case GenerateDialog::Type::EAN8:
@@ -224,11 +218,11 @@ void MainWindow::on_SendAllButton_clicked()
     
     // Initialize timer and start sending barcodes
     m_nCurrentBarcodeIndex = 0;
-    m_pSendTimer = new QTimer(this);
+    m_pSendTimer.reset(new QTimer(this));
     m_pSendTimer->setSingleShot(true);
     m_pSendTimer->setInterval(ui->TimeoutSlider->value() * 1000);
     
-    connect(m_pSendTimer, &QTimer::timeout, this, &MainWindow::sendNextBarcode);
+    connect(m_pSendTimer.data(), &QTimer::timeout, this, &MainWindow::sendNextBarcode);
     
     // Start with first barcode
     QTimer::singleShot(ui->TimeoutSlider->value() * 1000, this, [this]() {
@@ -245,6 +239,10 @@ void MainWindow::on_SendAllButton_clicked()
 bool MainWindow::SendBarcodeString(QString sBarcode)
 {
     if (sBarcode.isEmpty()) {
+        return false;
+    }
+    if (!m_pStringSender) {
+        m_InfoMessageHandler->InfoMessage("String sender is not initialized");
         return false;
     }
     if (!m_pStringSender->SendString(&sBarcode)) {
@@ -281,8 +279,7 @@ bool MainWindow::SendBarcodeByIterator(int nIt)
         m_InfoMessageHandler->InfoMessage("All barcodes sent successfully!");
         // Clean up timer
         if(m_pSendTimer) {
-            m_pSendTimer->deleteLater();
-            m_pSendTimer = nullptr;
+            m_pSendTimer.reset();
         }
         return true;
     }
@@ -327,27 +324,28 @@ void MainWindow::PlayScanSound()
     if (!file.open(QIODevice::ReadOnly))
         return;
 
-    QTemporaryFile* tempFile = new QTemporaryFile(this);
+    QScopedPointer<QTemporaryFile> tempFile(new QTemporaryFile(this));
     tempFile->setAutoRemove(false);
     if (tempFile->open()) {
         tempFile->write(file.readAll());
         tempFile->close();
     }
 
-    QSoundEffect* pSound = new QSoundEffect(this);
-    pSound->setSource(QUrl::fromLocalFile(tempFile->fileName()));
-    pSound->setVolume(1.0);
-    pSound->play();
+    QScopedPointer<QSoundEffect> sound(new QSoundEffect(this));
+    sound->setSource(QUrl::fromLocalFile(tempFile->fileName()));
+    sound->setVolume(1.0);
+    sound->play();
 
-    //Clean everything
-    connect(pSound, &QSoundEffect::playingChanged, this, [=]() {
-        if (!pSound->isPlaying()) {
+    // Передаем владение Qt parent'у, а удаление по завершению делаем через сигнал.
+    connect(sound.data(), &QSoundEffect::playingChanged, this, [tempFile = tempFile.data(), sound = sound.data()]() {
+        if (!sound->isPlaying()) {
             QFile::remove(tempFile->fileName());
             tempFile->deleteLater();
-            pSound->deleteLater();
+            sound->deleteLater();
         }
     });
-
+    tempFile.take();
+    sound.take();
 }
 
 void MainWindow::sendNextBarcode()
@@ -366,8 +364,7 @@ void MainWindow::sendNextBarcode()
 
             // Clean up timer on error
             if(m_pSendTimer) {
-                m_pSendTimer->deleteLater();
-                m_pSendTimer = nullptr;
+                m_pSendTimer.reset();
             }
         }
     }
@@ -476,8 +473,7 @@ void MainWindow::on_StopButton_clicked()
     if(m_pSendTimer && m_pSendTimer->isActive()) {
         m_InfoMessageHandler->InfoMessage("Stopping send timer...");
         m_pSendTimer->stop();
-        m_pSendTimer->deleteLater();
-        m_pSendTimer = nullptr;
+        m_pSendTimer.reset();
         
         QMessageBox::information(this, "Stopped", "Sending process has been stopped.");
     } else {
@@ -495,9 +491,9 @@ void MainWindow::on_WebsiteButton_clicked()
     QDesktopServices::openUrl(QUrl::fromUserInput("http://mbersenev.ph/"));
 }
 
-void MainWindow::on_MessagesCheckBox_checkStateChanged(const Qt::CheckState &arg1)
+void MainWindow::on_MessagesCheckBox_stateChanged(int state)
 {
-    const bool bShouldShowMessages = (arg1 == Qt::Checked);
+    const bool bShouldShowMessages = (state == Qt::Checked);
     CAppSettings settings(this);
     settings.setShowInfoMessages(bShouldShowMessages);
 
@@ -510,10 +506,10 @@ void MainWindow::on_MessagesCheckBox_checkStateChanged(const Qt::CheckState &arg
     }
 }
 
-void MainWindow::on_SendReturnCheckBox_checkStateChanged(const Qt::CheckState &arg1)
+void MainWindow::on_SendReturnCheckBox_stateChanged(int state)
 {
     CAppSettings settings(this);
-    settings.setSendReturnAfterBarcode(arg1 == Qt::Checked);
+    settings.setSendReturnAfterBarcode(state == Qt::Checked);
 }
 
 void MainWindow::on_TimeoutSlider_valueChanged(int value)

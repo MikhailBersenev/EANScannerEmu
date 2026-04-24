@@ -9,6 +9,7 @@
 #include <QFileInfo>
 #include <QResource>
 #include <QSoundEffect>
+#include <QScopedPointer>
 #include <QSharedPointer>
 
 
@@ -51,17 +52,17 @@ private slots:
 
     void on_WebsiteButton_clicked();
 
-    void on_MessagesCheckBox_checkStateChanged(const Qt::CheckState &arg1);
+    void on_MessagesCheckBox_stateChanged(int state);
 
-    void on_SendReturnCheckBox_checkStateChanged(const Qt::CheckState &arg1);
+    void on_SendReturnCheckBox_stateChanged(int state);
 
     void on_TimeoutSlider_valueChanged(int value);
 
 private:
-    Ui::MainWindow *ui;
+    QScopedPointer<Ui::MainWindow> ui;
     QStringList m_aBarcodes;
     unsigned int m_nIterator;
-    CStringSender* m_pStringSender;
+    QScopedPointer<CStringSender> m_pStringSender;
     bool SendBarcodeByIterator(int nIt);
     bool SendBarcodeString(QString sBarcode);
     void ShowWaylandWarningMessage();
@@ -73,7 +74,7 @@ private:
 
     
     // Timer-related members
-    QTimer* m_pSendTimer;
+    QScopedPointer<QTimer> m_pSendTimer;
     int m_nCurrentBarcodeIndex;
 };
 #endif // MAINWINDOW_H
