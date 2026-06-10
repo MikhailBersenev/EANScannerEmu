@@ -7,15 +7,20 @@
 #include <QTextStream>
 #include <QFont>
 #include <QIcon>
+#include <QGuiApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-#if defined(Q_OS_MACOS)
-    a.setWindowIcon(QIcon(":/icon.png"));
-#else
+#if defined(Q_OS_WIN)
     a.setWindowIcon(QIcon(":/icon.ico"));
+#else
+    a.setWindowIcon(QIcon(":/icon.png"));
+#endif
+
+#if defined(Q_OS_LINUX)
+    QGuiApplication::setDesktopFileName(QStringLiteral("EANScannerEmu"));
 #endif
 
     // Настройка сглаживания шрифтов для красивого рендеринга

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Сборка AppImage (Qt 6, x86_64). Требования: qmake из Qt6, patchelf, squashfs-tools,
-# ImageMagick (magick или convert) для ресайза иконки.
+# Для ресайза иконки: ImageMagick, python3-pillow или packaging/linux/icon-256.png.
 # Опционально: переменная QMAKE, например QMAKE=~/Qt/6.8.2/gcc_64/bin/qmake
 set -euo pipefail
 
@@ -19,6 +19,16 @@ if ! command -v "$QMAKE_BIN" &>/dev/null; then
   exit 1
 fi
 
+if [[ ! -f /usr/include/X11/extensions/XTest.h ]] \
+  && ! pkg-config --exists xtst 2>/dev/null; then
+  echo "Не найдены заголовки X11/Xtst (XTest.h)." >&2
+  echo "Установите dev-пакеты, например:" >&2
+  echo "  Debian/Ubuntu: sudo apt install libx11-dev libxtst-dev" >&2
+  echo "  Fedora:        sudo dnf install libX11-devel libXtst-devel" >&2
+  echo "  Arch:          sudo pacman -S libx11 libxtst" >&2
+  exit 1
+fi
+
 QT_VERSION="$("$QMAKE_BIN" -query QT_VERSION)"
 if [[ "${QT_VERSION%%.*}" -lt 6 ]]; then
   echo "Ожидается Qt 6, найдено: $QT_VERSION ($QMAKE_BIN)" >&2
@@ -31,17 +41,17 @@ mkdir -p "$BUILD_DIR" "$APPDIR/usr/bin"
 echo "==> qmake + make (release)"
 (
   cd "$BUILD_DIR"
-  "$QMAKE_BIN" "$ROOT/EANScannerEmuSrc.pro" CONFIG+=release
+  "$QMAKE_BIN" "$ROOT/EANScannerEmu.pro" CONFIG+=release
   make -j"$(nproc)"
 )
 
-if [[ ! -f "$BUILD_DIR/EANScannerEmuSrc" ]]; then
-  echo "Не найден бинарник: $BUILD_DIR/EANScannerEmuSrc" >&2
+if [[ ! -f "$BUILD_DIR/EANScannerEmu" ]]; then
+  echo "Не найден бинарник: $BUILD_DIR/EANScannerEmu" >&2
   exit 1
 fi
 
-cp "$BUILD_DIR/EANScannerEmuSrc" "$APPDIR/usr/bin/"
-chmod +x "$APPDIR/usr/bin/EANScannerEmuSrc"
+cp "$BUILD_DIR/EANScannerEmu" "$APPDIR/usr/bin/"
+chmod +x "$APPDIR/usr/bin/EANScannerEmu"
 
 LINUXDEPLOY="${LINUXDEPLOY:-$OUT_DIR/linuxdeploy-x86_64.AppImage}"
 PLUGIN_QT="${LINUXDEPLOY_PLUGIN_QT:-$OUT_DIR/linuxdeploy-plugin-qt-x86_64.AppImage}"
@@ -92,12 +102,22 @@ chmod +x "$QMAKE_WRAPPER"
 
 # linuxdeploy принимает только фиксированные размеры PNG (не 1024×1024 и т.п.)
 APPIMAGE_ICON="$OUT_DIR/icon-appimage.png"
+BUNDLED_ICON="$ROOT/packaging/linux/icon-256.png"
 if command -v magick &>/dev/null; then
   magick "$ROOT/icon.png" -resize 256x256 "$APPIMAGE_ICON"
 elif command -v convert &>/dev/null; then
   convert "$ROOT/icon.png" -resize 256x256 "$APPIMAGE_ICON"
+elif python3 -c "from PIL import Image" 2>/dev/null; then
+  python3 - "$ROOT/icon.png" "$APPIMAGE_ICON" <<'PY'
+from PIL import Image
+import sys
+Image.open(sys.argv[1]).resize((256, 256), Image.Resampling.LANCZOS).save(sys.argv[2])
+PY
+elif [[ -f "$BUNDLED_ICON" ]]; then
+  cp "$BUNDLED_ICON" "$APPIMAGE_ICON"
 else
-  echo "Для ресайза icon.png нужен ImageMagick (magick или convert)." >&2
+  echo "Не удалось подготовить иконку 256×256 для AppImage." >&2
+  echo "Установите ImageMagick (magick/convert), python3-pillow, или добавьте $BUNDLED_ICON" >&2
   exit 1
 fi
 
@@ -110,16 +130,53 @@ export PATH="$(dirname "$QMAKE_BIN"):$PATH"
 # из‑за чего сборка падает. По умолчанию отключаем strip; для уменьшения размера: NO_STRIP=0 на системе с новым binutils (риск — снова ошибка strip).
 export NO_STRIP="${NO_STRIP:-1}"
 
+install_hicolor_icons() {
+  local src="$1" appdir="$2"
+  local sizes=(16 32 48 64 128 256)
+  for size in "${sizes[@]}"; do
+    local dest="$appdir/usr/share/icons/hicolor/${size}x${size}/apps/EANScannerEmu.png"
+    mkdir -p "$(dirname "$dest")"
+    if command -v magick &>/dev/null; then
+      magick "$src" -resize "${size}x${size}" "$dest"
+    elif command -v convert &>/dev/null; then
+      convert "$src" -resize "${size}x${size}" "$dest"
+    elif python3 -c "from PIL import Image" 2>/dev/null; then
+      python3 - "$src" "$dest" "$size" <<'PY'
+from PIL import Image
+import sys
+Image.open(sys.argv[1]).resize((int(sys.argv[3]), int(sys.argv[3])), Image.Resampling.LANCZOS).save(sys.argv[2])
+PY
+    elif [[ "$size" == "256" && -f "$BUNDLED_ICON" ]]; then
+      cp "$BUNDLED_ICON" "$dest"
+    else
+      echo "Не удалось создать иконку ${size}x${size} для GNOME." >&2
+      return 1
+    fi
+  done
+}
+
 echo "==> linuxdeploy (Qt), VERSION=$VERSION NO_STRIP=$NO_STRIP"
 (
   cd "$OUT_DIR"
   APPIMAGE_EXTRACT_AND_RUN=1 \
     "$LINUXDEPLOY" --appdir "$APPDIR" \
-    -e "$APPDIR/usr/bin/EANScannerEmuSrc" \
+    -e "$APPDIR/usr/bin/EANScannerEmu" \
     -d "$ROOT/packaging/linux/EANScannerEmu.desktop" \
     -i "$APPIMAGE_ICON" \
     --icon-filename EANScannerEmu \
-    --plugin qt \
+    --plugin qt
+)
+
+echo "==> иконки hicolor (16–256) для GNOME"
+install_hicolor_icons "$ROOT/icon.png" "$APPDIR"
+ln -sf usr/share/icons/hicolor/256x256/apps/EANScannerEmu.png "$APPDIR/EANScannerEmu.png"
+ln -sf EANScannerEmu.png "$APPDIR/.DirIcon"
+
+echo "==> упаковка AppImage"
+(
+  cd "$OUT_DIR"
+  APPIMAGE_EXTRACT_AND_RUN=1 \
+    "$LINUXDEPLOY" --appdir "$APPDIR" \
     --output appimage
 )
 

@@ -38,11 +38,10 @@ MainWindow::MainWindow(QWidget *parent)
     }
     this->setWindowTitle(this->windowTitle() + " ver. " + CUtils::GetVersion());
     m_InfoMessageHandler = QSharedPointer<CInfoMessageHandler>::create(nullptr, ui->MessagesCheckBox->isChecked());
-    // На macOS PNG отображается корректнее, чем .ico (док, заголовок окна)
-#if defined(Q_OS_MACOS)
-    setWindowIcon(QIcon(":/icon.png"));
-#else
+#if defined(Q_OS_WIN)
     setWindowIcon(QIcon(":/icon.ico"));
+#else
+    setWindowIcon(QIcon(":/icon.png"));
 #endif
     m_InfoMessageHandler->InfoMessage(QString("EANScannerEmu ver. %1").arg(CUtils::GetVersion()));
     m_nCurrentBarcodeIndex = 0;

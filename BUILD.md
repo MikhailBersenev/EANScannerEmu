@@ -8,7 +8,7 @@ This document describes how to compile the project from source on Linux, Windows
 - **C++**: compiler with **C++17** support
 - **qmake**: part of the Qt installation (often `qmake` or `qmake6` on Linux)
 
-Platform-specific libraries are linked in `EANScannerEmuSrc.pro`:
+Platform-specific libraries are linked in `EANScannerEmu.pro`:
 
 | Platform | Extra dependencies |
 |----------|---------------------|
@@ -21,10 +21,10 @@ Platform-specific libraries are linked in `EANScannerEmuSrc.pro`:
 ## Qt Creator
 
 1. Install **Qt 6** and **Qt Creator** (e.g. [Qt Online Installer](https://www.qt.io/download-qt-installer)).
-2. **File** → **Open File or Project…** → choose **`EANScannerEmuSrc.pro`** in the repository root.
+2. **File** → **Open File or Project…** → choose **`EANScannerEmu.pro`** in the repository root.
 3. When prompted, select a **kit** (Qt 6.x, matching compiler: GCC, Clang, MSVC, or MinGW on Windows).
 4. **Build** → **Build Project** (or toolbar hammer / **Ctrl+B** on Linux & Windows, **⌘B** on macOS).
-5. **Run** (green play) to start **`EANScannerEmuSrc`**.
+5. **Run** (green play) to start **`EANScannerEmu`**.
 
 **Tips**
 
@@ -50,16 +50,16 @@ From the repository root:
 
 ```bash
 mkdir -p build && cd build
-qmake6 ../EANScannerEmuSrc.pro CONFIG+=release   # or: qmake ../EANScannerEmuSrc.pro CONFIG+=release
+qmake6 ../EANScannerEmu.pro CONFIG+=release   # or: qmake ../EANScannerEmu.pro CONFIG+=release
 make -j"$(nproc)"
 ```
 
-The executable is **`EANScannerEmuSrc`** in the build directory.
+The executable is **`EANScannerEmu`** in the build directory.
 
 Debug build:
 
 ```bash
-qmake6 ../EANScannerEmuSrc.pro CONFIG+=debug
+qmake6 ../EANScannerEmu.pro CONFIG+=debug
 make -j"$(nproc)"
 ```
 
@@ -73,18 +73,18 @@ make -j"$(nproc)"
 ## Windows
 
 1. Install [Qt 6](https://www.qt.io/download) (MSVC or MinGW kit).
-2. Open **Qt Creator** → open `EANScannerEmuSrc.pro`, select a kit, build; **or** use a **Developer Command Prompt** / Qt shell:
+2. Open **Qt Creator** → open `EANScannerEmu.pro`, select a kit, build; **or** use a **Developer Command Prompt** / Qt shell:
 
 ```bat
 mkdir build
 cd build
-qmake ..\EANScannerEmuSrc.pro CONFIG+=release
+qmake ..\EANScannerEmu.pro CONFIG+=release
 nmake
 ```
 
 (MinGW: `mingw32-make` instead of `nmake`.)
 
-Output: **`EANScannerEmuSrc.exe`** in the build folder. Deploy Qt DLLs with `windeployqt` if you run the binary outside Qt Creator.
+Output: **`EANScannerEmu.exe`** in the build folder. Deploy Qt DLLs with `windeployqt` if you run the binary outside Qt Creator.
 
 ---
 
@@ -95,7 +95,7 @@ Output: **`EANScannerEmuSrc.exe`** in the build folder. Deploy Qt DLLs with `win
 
 ```bash
 mkdir -p build && cd build
-qmake ../EANScannerEmuSrc.pro CONFIG+=release
+qmake ../EANScannerEmu.pro CONFIG+=release
 make -j"$(sysctl -n hw.ncpu)"
 ```
 
@@ -110,7 +110,7 @@ Portable single-file packages are built with [linuxdeploy](https://github.com/li
 ### Extra tools
 
 - `curl`, `patchelf`, `squashfs-tools` (`mksquashfs`)
-- ImageMagick: `magick` or `convert` (to resize `icon.png` to a size accepted by linuxdeploy)
+- Optional: ImageMagick (`magick`/`convert`) or Python Pillow — to resize `icon.png` for AppImage; otherwise the script uses bundled `packaging/linux/icon-256.png`
 
 ### Command
 
