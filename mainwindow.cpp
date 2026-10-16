@@ -4,6 +4,7 @@
 #include "aboutdialog.h"
 #include "cutils.h"
 #include "cappsettings.h"
+#include "sendhistorymodel.h"
 
 #include "cstringsenderlinuxwayland.h"
 #include "cstringsenderlinuxx11.h"
@@ -22,6 +23,16 @@
 #include <QTextStream>
 #include <QStandardPaths>
 #include <QtGlobal>
+#include <QDialog>
+#include <QHeaderView>
+#include <QLabel>
+#include <QPushButton>
+#include <QTableView>
+#include <QVBoxLayout>
+#include <QClipboard>
+#include <QApplication>
+#include <QStatusBar>
+#include <utility>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -29,6 +40,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    m_sendHistory = new SendHistoryModel(
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/send-history.json", this);
+    ReportHistoryError(m_sendHistory->load());
     {
         CAppSettings settings(this);
         const int saved = settings.timeoutSeconds();
@@ -172,6 +186,129 @@ void MainWindow::on_AboutButton_clicked()
     dialog.exec();
 }
 
+void MainWindow::ReportHistoryError(const QString &error)
+{
+    m_historyError = error.isEmpty() ? QString() : tr("History: %1").arg(error);
+    if (m_historyErrorLabel) {
+        m_historyErrorLabel->setText(m_historyError);
+        m_historyErrorLabel->setVisible(!m_historyError.isEmpty());
+    }
+    if (!error.isEmpty()) {
+        qWarning().noquote() << m_historyError;
+        statusBar()->showMessage(m_historyError, 10000);
+    }
+}
+
+void MainWindow::on_HistoryButton_clicked()
+{
+    if (m_historyDialog) {
+        m_historyDialog->show();
+        m_historyDialog->raise();
+        m_historyDialog->activateWindow();
+        return;
+    }
+    auto *dialog = new QDialog(this);
+    m_historyDialog = dialog;
+    dialog->setObjectName("HistoryDialog");
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Sending History"));
+    dialog->resize(960, 480);
+    auto *layout = new QVBoxLayout(dialog);
+    auto *description = new QLabel(tr("Latest 1,000 send attempts, newest first. Results report keyboard emulation; target receipt is not verified."), dialog);
+    description->setWordWrap(true);
+    layout->addWidget(description);
+    auto *count = new QLabel(dialog);
+    const auto updateCount = [this, count] {
+        count->setText(m_sendHistory->rowCount() == 0 ? tr("No send attempts yet.")
+                         : tr("%1 send attempts").arg(m_sendHistory->rowCount()));
+    };
+    updateCount();
+    connect(m_sendHistory, &QAbstractItemModel::rowsInserted, dialog, updateCount);
+    connect(m_sendHistory, &QAbstractItemModel::rowsRemoved, dialog, updateCount);
+    connect(m_sendHistory, &QAbstractItemModel::modelReset, dialog, updateCount);
+    layout->addWidget(count);
+    auto *errorLabel = new QLabel(m_historyError, dialog);
+    m_historyErrorLabel = errorLabel;
+    errorLabel->setWordWrap(true);
+    errorLabel->setVisible(!m_historyError.isEmpty());
+    layout->addWidget(errorLabel);
+    auto *table = new QTableView(dialog);
+    table->setObjectName("HistoryTable");
+    table->setModel(m_sendHistory);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table->setSelectionMode(QAbstractItemView::SingleSelection);
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setAlternatingRowColors(true);
+    table->setWordWrap(false);
+    table->verticalHeader()->hide();
+    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    table->setColumnWidth(0, 205);
+    table->setColumnWidth(1, 225);
+    table->setColumnWidth(2, 130);
+    table->setColumnWidth(3, 65);
+    table->horizontalHeader()->setStretchLastSection(true);
+    layout->addWidget(table);
+    auto *buttons = new QHBoxLayout;
+    auto *resend = new QPushButton(tr("Resend"), dialog);
+    resend->setObjectName("HistoryResendButton");
+    resend->setAutoDefault(false);
+    resend->setDefault(false);
+    resend->setToolTip(tr("Resend the selected barcode after the current timeout, using the current Send Return setting. Switch focus to the target application."));
+    resend->setEnabled(false);
+    auto *copy = new QPushButton(tr("Copy Barcode"), dialog);
+    copy->setAutoDefault(false);
+    copy->setEnabled(false);
+    const auto updateSelectionActions = [table, copy, resend] {
+        const bool selected = table->selectionModel()->hasSelection();
+        copy->setEnabled(selected);
+        resend->setEnabled(selected);
+    };
+    connect(table->selectionModel(), &QItemSelectionModel::selectionChanged, dialog, updateSelectionActions);
+    connect(m_sendHistory, &QAbstractItemModel::modelReset, dialog, updateSelectionActions);
+    connect(resend, &QPushButton::clicked, dialog, [this, table] {
+        const auto rows = table->selectionModel()->selectedRows(1);
+        if (rows.isEmpty())
+            return;
+        // Capture the value now: new history entries or clearing history can move/remove the row.
+        const QString barcode = rows.first().data().toString();
+        if (barcode.isEmpty())
+            return;
+        auto *timer = new QTimer(this);
+        timer->setSingleShot(true);
+        m_pendingResends.append(timer);
+        connect(timer, &QTimer::timeout, this, [this, barcode, timer] {
+            m_pendingResends.removeOne(timer);
+            timer->deleteLater();
+            if (!SendBarcodeString(barcode, tr("Resend")))
+                QMessageBox::warning(this, tr("Error"), tr("Failed to resend the barcode."));
+        });
+        timer->start(ui->TimeoutSlider->value() * 1000);
+    });
+    buttons->addWidget(resend);
+    connect(copy, &QPushButton::clicked, dialog, [table] {
+        const auto rows = table->selectionModel()->selectedRows(1);
+        if (!rows.isEmpty())
+            QApplication::clipboard()->setText(rows.first().data().toString());
+    });
+    buttons->addWidget(copy);
+    auto *clear = new QPushButton(tr("Clear History"), dialog);
+    clear->setAutoDefault(false);
+    connect(clear, &QPushButton::clicked, dialog, [this, dialog] {
+        if (QMessageBox::question(dialog, tr("Clear History"),
+                tr("Delete all sending history?"), QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No) == QMessageBox::Yes)
+            ReportHistoryError(m_sendHistory->clear());
+    });
+    buttons->addWidget(clear);
+    buttons->addStretch();
+    auto *close = new QPushButton(tr("Close"), dialog);
+    close->setAutoDefault(false);
+    connect(close, &QPushButton::clicked, dialog, &QDialog::close);
+    buttons->addWidget(close);
+    layout->addLayout(buttons);
+    dialog->show();
+}
+
 
 void MainWindow::on_GitHubButton_clicked()
 {
@@ -227,7 +364,7 @@ void MainWindow::on_SendAllButton_clicked()
     
     // Start with first barcode
     QTimer::singleShot(ui->TimeoutSlider->value() * 1000, this, [this]() {
-        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
+        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex, tr("Send All"))) {
             m_nCurrentBarcodeIndex++;
             // Start timer for next barcode
             if(m_pSendTimer) {
@@ -237,38 +374,49 @@ void MainWindow::on_SendAllButton_clicked()
     });
 }
 
-bool MainWindow::SendBarcodeString(QString sBarcode)
+bool MainWindow::SendBarcodeString(QString sBarcode, const QString &action)
 {
     if (sBarcode.isEmpty()) {
         return false;
     }
+    const QDateTime timestamp = QDateTime::currentDateTimeUtc();
+    const bool sendReturn = ui->SendReturnCheckBox->isChecked();
+    const auto record = [this, &sBarcode, &action, timestamp, sendReturn](const QString &result) {
+        ReportHistoryError(m_sendHistory->append({timestamp, sBarcode, action, sendReturn, result}));
+    };
     if (!m_pStringSender) {
+        record(tr("Failed: sender unavailable"));
         m_InfoMessageHandler->InfoMessage("String sender is not initialized");
         return false;
     }
     if (!m_pStringSender->SendString(&sBarcode)) {
+        record(tr("Failed: text send failed (may be partial)"));
         m_InfoMessageHandler->InfoMessage(QString("unable to send string %1").arg(sBarcode));
         return false;
     }
-    if (ui->SendReturnCheckBox->isChecked()) {
+    if (sendReturn) {
         if (!m_pStringSender->SendReturn()) {
+            record(tr("Text sent; Enter failed"));
             m_InfoMessageHandler->InfoMessage(QString("unable to send Return %1").arg(sBarcode));
             return false;
         }
     }
+    record(tr("Sent"));
     PlayScanSound();
     return true;
 }
 
-bool MainWindow::SendBarcodeByIterator(int nIt)
+bool MainWindow::SendBarcodeByIterator(int nIt, const QString &action)
 {
+    if (nIt < 0 || nIt >= m_aBarcodes.size())
+        return false;
     QString sCurBarcode = m_aBarcodes.at(nIt);
     if(sCurBarcode.isEmpty()) {
         m_InfoMessageHandler->InfoMessage("m_aBarcodes.at(" + QString::number(nIt) + ") is empty");
         return false;
     }
 
-    if (!SendBarcodeString(sCurBarcode)) {
+    if (!SendBarcodeString(sCurBarcode, action)) {
         return false;
     }
 
@@ -353,7 +501,7 @@ void MainWindow::sendNextBarcode()
 {
     if(m_nCurrentBarcodeIndex < m_aBarcodes.size()) {
         m_InfoMessageHandler->InfoMessage(QString("Sending barcode %1 of %2").arg(m_nCurrentBarcodeIndex + 1).arg(m_aBarcodes.size()));
-        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
+        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex, tr("Send All"))) {
             m_nCurrentBarcodeIndex++;
             // Start timer for next barcode if there are more
             if(m_nCurrentBarcodeIndex < m_aBarcodes.size() && m_pSendTimer) {
@@ -387,7 +535,7 @@ void MainWindow::on_SendSelectionButton_clicked()
     }
 
     QTimer::singleShot(ui->TimeoutSlider->value() * 1000, this, [this, sSel]() {
-        if (!SendBarcodeString(sSel)) {
+        if (!SendBarcodeString(sSel, tr("Send Selection"))) {
             QMessageBox::warning(this, tr("Error"), tr("Failed to send the selection."));
         }
     });
@@ -409,7 +557,7 @@ void MainWindow::on_SendNextButton_clicked()
     }
     // Send current barcode
     QTimer::singleShot(ui->TimeoutSlider->value() * 1000, this, [this]() {
-        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
+        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex, tr("Send Next"))) {
             m_nCurrentBarcodeIndex++;
 
             // Show progress
@@ -450,7 +598,7 @@ void MainWindow::on_SendPreviousButton_clicked()
     }
     // Send the previous barcode
     QTimer::singleShot(ui->TimeoutSlider->value() * 1000, this, [this]() {
-        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex)) {
+        if(SendBarcodeByIterator(m_nCurrentBarcodeIndex, tr("Send Previous"))) {
             // Show progress
             if (m_InfoMessageHandler->GetMode()) {
                 QMessageBox::information(this, "Progress",
@@ -468,14 +616,20 @@ void MainWindow::on_SendPreviousButton_clicked()
 
 void MainWindow::on_StopButton_clicked()
 {
-    m_InfoMessageHandler->InfoMessage("MainWindow::on_StopButton_clicked()");
-    
-    // Stop the timer if it's running
-    if(m_pSendTimer && m_pSendTimer->isActive()) {
-        m_InfoMessageHandler->InfoMessage("Stopping send timer...");
+    // Cancel all pending work before opening any messages with nested event loops.
+    const bool hadPendingResends = !m_pendingResends.isEmpty();
+    for (QTimer *timer : std::as_const(m_pendingResends)) {
+        timer->stop();
+        timer->deleteLater();
+    }
+    m_pendingResends.clear();
+    const bool hadActiveBatch = m_pSendTimer && m_pSendTimer->isActive();
+    if (hadActiveBatch) {
         m_pSendTimer->stop();
         m_pSendTimer.reset();
-        
+    }
+    m_InfoMessageHandler->InfoMessage("MainWindow::on_StopButton_clicked()");
+    if (hadPendingResends || hadActiveBatch) {
         QMessageBox::information(this, "Stopped", "Sending process has been stopped.");
     } else {
         m_InfoMessageHandler->InfoMessage("No active timer to stop");

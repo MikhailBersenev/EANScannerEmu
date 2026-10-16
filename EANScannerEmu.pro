@@ -20,6 +20,7 @@ SOURCES += \
     cutils.cpp \
     generatedialog.cpp \
     main.cpp \
+    sendhistorymodel.cpp \
     mainwindow.cpp
 
 HEADERS += \
@@ -33,6 +34,7 @@ HEADERS += \
     cstringsendermac.h \
     cutils.h \
     generatedialog.h \
+    sendhistorymodel.h \
     mainwindow.h
 
 FORMS += \

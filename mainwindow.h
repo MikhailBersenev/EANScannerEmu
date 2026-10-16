@@ -11,6 +11,11 @@
 #include <QSoundEffect>
 #include <QScopedPointer>
 #include <QSharedPointer>
+#include <QPointer>
+
+class SendHistoryModel;
+class QDialog;
+class QLabel;
 
 
 QT_BEGIN_NAMESPACE
@@ -33,6 +38,7 @@ private slots:
     void on_GenerateButton_clicked();
 
     void on_AboutButton_clicked();
+    void on_HistoryButton_clicked();
 
     void on_GitHubButton_clicked();
 
@@ -63,8 +69,13 @@ private:
     QStringList m_aBarcodes;
     unsigned int m_nIterator;
     QScopedPointer<CStringSender> m_pStringSender;
-    bool SendBarcodeByIterator(int nIt);
-    bool SendBarcodeString(QString sBarcode);
+    bool SendBarcodeByIterator(int nIt, const QString &action);
+    bool SendBarcodeString(QString sBarcode, const QString &action);
+    void ReportHistoryError(const QString &error);
+    SendHistoryModel *m_sendHistory;
+    QPointer<QDialog> m_historyDialog;
+    QPointer<QLabel> m_historyErrorLabel;
+    QString m_historyError;
     void ShowWaylandWarningMessage();
     void PlayScanSound();
     void PlayScanSoundAlternative(); // Альтернативная функция с QSoundEffect
@@ -75,6 +86,7 @@ private:
     
     // Timer-related members
     QScopedPointer<QTimer> m_pSendTimer;
+    QList<QTimer *> m_pendingResends;
     int m_nCurrentBarcodeIndex;
 };
 #endif // MAINWINDOW_H

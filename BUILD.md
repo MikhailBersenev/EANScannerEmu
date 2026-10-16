@@ -147,6 +147,18 @@ On some distributions (e.g. with KDE Qt packages), optional **`kimg_*`** image p
 
 ---
 
+## History tests
+
+With Qt Test installed, run the history persistence and model tests from the repository root:
+
+```bash
+mkdir -p build/history-tests
+cd build/history-tests
+qmake ../../tests/sendhistory.pro
+make -j4
+./tst_sendhistory
+```
+
 ## Troubleshooting
 
 - **`qmake`: command not found** — Add Qt’s `bin` directory to `PATH`, or call the full path to `qmake`/`qmake6`.

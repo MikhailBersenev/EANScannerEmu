@@ -136,6 +136,13 @@
     <item row="1" column="0" colspan="2">
      <layout class="QHBoxLayout" name="SettingsLayout">
       <item>
+       <widget class="QPushButton" name="HistoryButton">
+        <property name="text">
+         <string>History</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="GitHubButton">
         <property name="text">
          <string>Github </string>

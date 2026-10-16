@@ -31,6 +31,7 @@ EANScannerEmu is a powerful application that emulates a barcode scanner, allowin
   - GS1 DataMatrix
   
 - **Batch Processing**: Send multiple barcodes sequentially with configurable delays
+- **Sending History**: View the latest 1,000 send attempts with timestamps, barcodes, send actions, Enter settings, and results; history persists across restarts
 - **Automatic Save/Load**: Barcodes are saved to `barcodes.txt` and loaded on startup
 - **Flexible Sending**: Send next, previous, all barcodes, or **only the text you highlighted** (Send Selection)
 - **Cross-Platform**: Works on Linux (X11/Wayland) and Windows
@@ -50,6 +51,11 @@ EANScannerEmu is a powerful application that emulates a barcode scanner, allowin
 - **Send Selection**: In the barcode text field, **select (highlight) the characters** you want to inject, then click **"Send Selection"**. The app sends that string as keystrokes (and **Enter** after it if **Send Return** is checked). You do **not** need to press **Load** first—only a non-empty selection matters. If your selection spans **multiple lines**, only the **first non-empty line** is sent (leading/trailing spaces on that line are trimmed). Sending runs after the **Timeout** delay, same as batch sends—use it to switch focus to the target window.
 - **Auto-Load**: Barcodes from `barcodes.txt` are automatically loaded on startup
 - **Clean**: Clears all barcodes and deletes the save file
+- **History**: Opens a live, newest-first list of attempts from Send Next, Send Previous, Send All, and Send Selection. Select a row and use **Copy Barcode** to copy its full value. **Clear History** deletes saved history after confirmation, independently of the barcode list. Results reflect the keyboard sender's reported outcome; delivery to the target application is not verified. A text-send failure may be partial, and an Enter failure is shown separately when text was already sent.
+
+Select a history row and click **Resend** to send that barcode again after the current **Timeout** delay. Switch focus to the target application during the delay. Resending uses the current **Send Return** setting and adds a new history entry with the action **Resend**. **Stop** cancels queued resends, including resends queued before closing the History window.
+
+Sending history is stored as `send-history.json` in Qt's application data directory (`QStandardPaths::AppDataLocation`). Only attempted sends are recorded, after the timeout expires. If saving fails, history stays available for the current session and an error appears in the History window.
 
 ## Data File Location
 

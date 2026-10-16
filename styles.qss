@@ -43,6 +43,23 @@ QDialog#AboutDialog QPushButton:focus {
 }
 
 /* Основное окно */
+QDialog#HistoryDialog QTableView {
+    background-color: #1E1E1E;
+    alternate-background-color: #252525;
+    gridline-color: #424242;
+    selection-background-color: #6A1B9A;
+    selection-color: #FFFFFF;
+    border: 1px solid #424242;
+}
+
+QDialog#HistoryDialog QHeaderView::section {
+    background-color: #2D2D2D;
+    color: #BB86FC;
+    padding: 8px;
+    border: none;
+    border-right: 1px solid #424242;
+}
+
 QMainWindow {
     background-color: #121212;
     color: rgba(255, 255, 255, 0.87);
@@ -217,6 +234,7 @@ QPushButton#CleanButton:pressed {
 /* Flat Buttons - GitHub, Website, About */
 QPushButton#GitHubButton,
 QPushButton#WebsiteButton,
+QPushButton#HistoryButton,
 QPushButton#AboutButton,
 QDialog#AboutDialog QPushButton[aboutLink="true"] {
     background-color: transparent;
@@ -231,6 +249,7 @@ QDialog#AboutDialog QPushButton[aboutLink="true"] {
 
 QPushButton#GitHubButton:hover,
 QPushButton#WebsiteButton:hover,
+QPushButton#HistoryButton:hover,
 QPushButton#AboutButton:hover,
 QDialog#AboutDialog QPushButton[aboutLink="true"]:hover {
     background-color: rgba(187, 134, 252, 0.12);
@@ -238,6 +257,7 @@ QDialog#AboutDialog QPushButton[aboutLink="true"]:hover {
 
 QPushButton#GitHubButton:pressed,
 QPushButton#WebsiteButton:pressed,
+QPushButton#HistoryButton:pressed,
 QPushButton#AboutButton:pressed,
 QDialog#AboutDialog QPushButton[aboutLink="true"]:pressed {
     background-color: rgba(187, 134, 252, 0.24);
