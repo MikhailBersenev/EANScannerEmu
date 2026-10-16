@@ -311,7 +311,7 @@ void MainWindow::ShowWaylandWarningMessage()
         QMessageBox::warning(this, "Warning",
             "Wayland mode detected.\n\n"
             "Keyboard emulation works through ydotool. Please make sure:\n"
-            "1) ydotool is installed and доступен in PATH\n"
+            "1) ydotool is installed and available in PATH\n"
             "2) ydotoold daemon is running\n"
             "3) your user has permission to access /dev/uinput\n\n"
             "If input still does not work in your compositor, try an X11 session as fallback.");
