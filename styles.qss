@@ -1,5 +1,47 @@
 /* Material Design темная тема с фиолетовой палитрой для EANScannerEmu */
 
+/* About dialog */
+QDialog#AboutDialog QLabel#AboutEyebrow {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+QDialog#AboutDialog QLabel#AboutTitle {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+QDialog#AboutDialog QLabel#AboutVersion {
+    color: #BB86FC;
+    font-size: 14px;
+}
+
+QDialog#AboutDialog QLabel#AboutDescription {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+QDialog#AboutDialog QFrame#AboutDetails {
+    background-color: #1E1E1E;
+    border: none;
+    border-radius: 0px;
+}
+
+QDialog#AboutDialog QLabel[aboutDetailLabel="true"] {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+}
+
+QDialog#AboutDialog QFrame#AboutDivider {
+    background-color: #2D2D2D;
+    border: none;
+}
+
+QDialog#AboutDialog QPushButton:focus {
+    outline: 1px solid #BB86FC;
+}
+
 /* Основное окно */
 QMainWindow {
     background-color: #121212;
@@ -47,7 +89,8 @@ QPushButton:disabled {
 }
 
 /* Raised Button - Send All */
-QPushButton#SendAllButton {
+QPushButton#SendAllButton,
+QDialog#AboutDialog QPushButton#AboutClose {
     background-color: #9C27B0;
     color: #FFFFFF;
     font-family: "Roboto", "Segoe UI", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
@@ -55,11 +98,13 @@ QPushButton#SendAllButton {
     border: none;
 }
 
-QPushButton#SendAllButton:hover {
+QPushButton#SendAllButton:hover,
+QDialog#AboutDialog QPushButton#AboutClose:hover {
     background-color: #7B1FA2;
 }
 
-QPushButton#SendAllButton:pressed {
+QPushButton#SendAllButton:pressed,
+QDialog#AboutDialog QPushButton#AboutClose:pressed {
     background-color: #6A1B9A;
 }
 
@@ -172,7 +217,8 @@ QPushButton#CleanButton:pressed {
 /* Flat Buttons - GitHub, Website, About */
 QPushButton#GitHubButton,
 QPushButton#WebsiteButton,
-QPushButton#AboutButton {
+QPushButton#AboutButton,
+QDialog#AboutDialog QPushButton[aboutLink="true"] {
     background-color: transparent;
     border: none;
     border-radius: 4px;
@@ -185,13 +231,15 @@ QPushButton#AboutButton {
 
 QPushButton#GitHubButton:hover,
 QPushButton#WebsiteButton:hover,
-QPushButton#AboutButton:hover {
+QPushButton#AboutButton:hover,
+QDialog#AboutDialog QPushButton[aboutLink="true"]:hover {
     background-color: rgba(187, 134, 252, 0.12);
 }
 
 QPushButton#GitHubButton:pressed,
 QPushButton#WebsiteButton:pressed,
-QPushButton#AboutButton:pressed {
+QPushButton#AboutButton:pressed,
+QDialog#AboutDialog QPushButton[aboutLink="true"]:pressed {
     background-color: rgba(187, 134, 252, 0.24);
 }
 
@@ -507,7 +555,8 @@ QLabel#TimeoutLabel {
     -qt-style-features: "FontAntialiasing";
 }
 
-QLabel#CopyrightLabel {
+QLabel#CopyrightLabel,
+QDialog#AboutDialog QLabel#AboutCopyright {
     color: rgba(255, 255, 255, 0.54);
     font-size: 12px;
 }

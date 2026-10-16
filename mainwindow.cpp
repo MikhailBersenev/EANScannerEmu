@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "generatedialog.h"
+#include "aboutdialog.h"
 #include "cutils.h"
 #include "cappsettings.h"
 
@@ -167,7 +168,8 @@ void MainWindow::on_GenerateButton_clicked()
 
 void MainWindow::on_AboutButton_clicked()
 {
-    QMessageBox::information(this, "About", "EAN Code Scanner Generator\n Version " + CUtils::GetVersion());
+    AboutDialog dialog(this);
+    dialog.exec();
 }
 
 
